@@ -1,0 +1,16 @@
+[2021-03-12T10:47:55+08:00][error] [8]未定义数组索引: uid
+[2021-03-12T11:22:29+08:00][error] [0]模板文件不存在:themes/admin_simpleboot3/admin\config\ip_config.html
+[2021-03-12T11:30:44+08:00][error] [8]unserialize(): Error at offset 59 of 187 bytes
+[2021-03-12T11:30:46+08:00][error] [8]未定义变量: admin_themes
+[2021-03-12T11:30:48+08:00][error] [8]未定义变量: admin_themes
+[2021-03-12T15:11:23+08:00][error] [8]未定义变量: config
+[2021-03-12T15:12:06+08:00][error] [8]未定义变量: config
+[2021-03-12T15:12:17+08:00][error] [8]未定义变量: httpList
+[2021-03-12T15:12:19+08:00][error] [8]未定义变量: httpList
+[2021-03-12T15:13:26+08:00][error] [2]json_decode() expects parameter 1 to be string, array given
+[2021-03-12T15:13:28+08:00][error] [2]json_decode() expects parameter 1 to be string, array given
+[2021-03-12T15:13:31+08:00][error] [2]json_decode() expects parameter 1 to be string, array given
+[2021-03-12T15:13:32+08:00][error] [2]json_decode() expects parameter 1 to be string, array given
+[2021-03-12T15:13:58+08:00][error] [2]json_decode() expects parameter 1 to be string, array given
+[2021-03-12T15:13:59+08:00][error] [2]json_decode() expects parameter 1 to be string, array given
+[2021-03-12T15:14:00+08:00][error] [2]json_decode() expects parameter 1 to be string, array given

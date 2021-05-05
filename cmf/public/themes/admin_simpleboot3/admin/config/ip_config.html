@@ -1,0 +1,140 @@
+<include file="public@header"/>
+</head>
+<body>
+<div class="wrap js-check-wrap" id="configs">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#A" data-toggle="tab">ip配置</a></li>
+        <li><a href="#B" data-toggle="tab">托管状态修改</a></li>
+    </ul>
+    <form class="form-horizontal js-ajax-form margin-top-20" role="form" action=""
+          method="post">
+        <fieldset>
+            <div class="tabbable">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="A">
+                        <div class="form-group">
+                            <label for="input-site-name" class="col-sm-2 control-label"><span
+                                    class="form-required">*</span>httpList</label>
+                            <div class="col-md-6 col-sm-10">
+                                <input type="text" class="form-control" id="input-site-name" name=""
+                                       v-model="httpList">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-site-name" class="col-sm-2 control-label"><span
+                                    class="form-required">*</span>loginList</label>
+                            <div class="col-md-6 col-sm-10">
+                                <input type="text" class="form-control"  name=""
+                                       v-model="loginList">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-site-name" class="col-sm-2 control-label"><span
+                                    class="form-required">*</span>hotList</label>
+                            <div class="col-md-6 col-sm-10">
+                                <input type="text" class="form-control"  name=""
+                                       v-model="hotList">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="button" class="btn btn-primary" @click="saves()" >
+                                    {:lang('SAVE')}
+                                </button>
+                                <button type="button" class="btn btn-info " @click="excels()">
+                                    导出json
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="B">
+                        <div class="form-group">
+                            <button style="margin-left: 10%" type="button" class="btn btn-info" @click="saves_tg(0)" v-if="auto_play_off==-1">
+                                取消托管
+                            </button>
+                            <button style="margin-left: 10%" type="button" class="btn btn-danger" @click="saves_tg(-1)" v-if="auto_play_off==0">
+                                开启托管
+                            </button>
+                        </div>
+                        </div>
+
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<script src="__STATIC__/js/vue.js"></script>
+<script src="__STATIC__/js/axios.min.js"></script>
+</body>
+</html>
+<script>
+    var app = new Vue({
+        el: '#configs',
+        data: {
+            httpList: "{$httpList}",
+            loginList: "{$loginList}",
+            hotList: "{$hotList}",
+            auto_play_off: 0,
+        },
+        created () {
+            this.get_auto_play_off();
+        },
+        methods: {
+            saves() {
+                let vm = this;
+                let httpList  = vm.httpList;
+                let loginList = vm.loginList;
+                let hotList   = vm.hotList;
+                axios
+                    .post('/admin/config/saves',{httpList: httpList,loginList: loginList,hotList: hotList})
+                    .then(function (response) {
+                        if(response.data.code==1) {
+                            alert(response.data.message);
+                        }else{
+
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            excels() {
+               location.href="/admin/config/excels";
+            },
+            get_auto_play_off() {
+                let vm = this;
+                axios
+                    .post('/admin/config/auto_play_off',{})
+                    .then(function (response) {
+                        if(response.data.code==1) {
+                            vm.auto_play_off= response.data.auto_play_off;
+                        }else{
+
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            saves_tg(i) {
+                let vm = this;
+                let auto_play_off = i;
+                axios
+                    .post('/admin/config/auto_play_save',{auto_play_off:auto_play_off})
+                    .then(function (response) {
+                        if(response.data.code==1) {
+                            vm.get_auto_play_off();
+                        }else{
+
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            }
+        },
+        mounted:function(){
+             this.get_auto_play_off();
+        },
+    })
+</script>

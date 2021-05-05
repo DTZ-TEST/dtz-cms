@@ -1,0 +1,206 @@
+<include file="public@headers" />
+<style>
+    .nav-tabs>li>a {
+        color: #1ab394;
+        font-weight: 600;
+        padding: 10px 20px 10px 25px;
+    }
+</style>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <!-- Panel Other -->
+    <div class="ibox float-e-margins" id="resetPwd">
+        <div class="ibox-title">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#">修改玩家密码</a></li>
+            </ul>
+        </div>
+        <div class="ibox-content">
+            <!--搜索框开始-->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div  class="col-sm-2" style="width: 100px">
+                    </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <input type="text" class="form-control" v-model="userId" placeholder="輸入需査詢userID" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-primary" @click="seach()"><i class="fa fa-search"></i> 搜索</button>
+                                </span>
+                            </div>
+                        </div>
+                </div>
+            </div>
+            <!--搜索框结束-->
+            <div class="hr-line-dashed"></div>
+            <div class="example-wrap">
+                <div class="hr-line-dashed"></div>
+                <div class="ibox-title">
+                    <h5>玩家资料</h5>
+                </div>
+                <div style="padding: 20px; background-color: #F2F2F2;">
+                    <div class="layui-row layui-col-space15">
+                        <div class="layui-col-md2">
+                            <div class="layui-card">
+                                <div class="layui-card-header">玩家id</div>
+                                <div class="layui-card-body" style="color:red">
+                                    {{userId}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md2">
+                            <div class="layui-card">
+                                <div class="layui-card-header">玩家昵称</div>
+                                <div class="layui-card-body">
+                                    <span class="layui-badge">{{username}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md2">
+                            <div class="layui-card">
+                                <div class="layui-card-header">玩家游戏状态</div>
+                                <div class="layui-card-body">
+                                    <span class="layui-badge" v-show="userState!==0">正常登录</span>
+                                    <span class="layui-bg-blue" v-show="userState===0">禁止登录</span>
+                                    <button class="btn btn-info" v-show="userState===0" style="margin-right: 20px;width: 77px" @click="reset_state(1)">允许登录</button>
+                                    <button class="btn btn-danger"  v-show="userState!==0" style="margin-right: 20px;width: 77px"  @click="reset_state(0)">禁止登录</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md3">
+                            <div class="layui-card">
+                                <div class="layui-card-header">需要修改成的密码</div>
+                                <div class="layui-card-body">
+                                    <input type="text" v-model="password" class="input-group" style="margin-bottom: 20px">
+                                    <button class="btn btn-primary" style="margin-right: 20px;width: 77px" @click="reset_password()">确定修改</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Example Pagination -->
+        </div>
+    </div>
+</div>
+<!-- End Panel Other -->
+</div>
+
+<!-- 加载动画 -->
+<div class="spiner-example">
+    <div class="sk-spinner sk-spinner-three-bounce">
+        <div class="sk-bounce1"></div>
+        <div class="sk-bounce2"></div>
+        <div class="sk-bounce3"></div>
+    </div>
+</div>
+<!--模态1-->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#resetPwd',
+        data: {
+            userId: '',
+            groupId: '',
+            account: "- -",
+            username: "- -",
+            userState: "- -",
+            password: '',
+            uid: '',
+        },
+        created () {
+
+        },
+        methods: {
+            seach () {
+                let vm = this;
+                let uid = vm.userId;
+                axios
+                    .post('/api/qyq/get_user',{uid: uid})
+                    .then(function (response) {
+                        if(response.data.code==1) {
+                            vm.username = response.data.data.name;
+                            vm.userState = response.data.data.userState;
+                        }else{
+                            alert(response.data.msg);
+                        }
+                        console.log(response);
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            reset_password() {
+                let vm = this;
+                let userId = vm.userId;
+                layer.confirm('您确定要修改密码吗？', {
+                    btn: ['确定','取消'] //按钮
+                }, function() {
+                    if(!userId) {
+                        layer.msg('用户信息不存在');
+                        return;
+                    }
+                    let password = vm.password;
+                    if(!password ){
+                        layer.msg('密码不能为空');
+                        return;
+                    }
+                    axios
+                        .post("/admin/qyq/save_password",{userId:userId,password:password})
+                        .then(function (response) {
+                            if(response.data.code==1) {
+                                layer.msg(response.data.message,{icon:1,time:2000},function (){
+                                    layer.msg("修改成功");
+                                    layer.closeAll('dialog');
+                                });
+                            }else{
+                                layer.msg(response.data.message);
+                            }
+
+                        })
+                        .catch(function (error) { // 请求失败处理
+                            console.log(error);
+                        });
+                })
+            },
+            reset_state(i) {
+                let vm = this;
+                let userId = vm.userId;
+                let msg;
+                if(i===0){
+                    msg = "您确定要禁止会员登录吗？";
+                }else{
+                    msg = "您确定要开启会员登录吗？";
+                }
+                layer.confirm(msg, {
+                    btn: ['确定','取消'] //按钮
+                }, function() {
+                    if(!userId) {
+                        layer.msg('用户信息不存在');
+                        return;
+                    }
+                    axios
+                        .post("/admin/qyq/reset_state",{userId:userId,userState:i})
+                        .then(function (response) {
+                            if(response.data.code==1) {
+                                layer.msg(response.data.message,{icon:1,time:2000},function (){
+                                    layer.msg("修改成功");
+                                    vm.seach();
+                                    layer.closeAll('dialog');
+                                });
+                            }else{
+                                layer.msg(response.data.message);
+                            }
+
+                        })
+                        .catch(function (error) { // 请求失败处理
+                            console.log(error);
+                        });
+                })
+            },
+        },
+        mounted:function(){
+        }
+    })
+</script>
+</body>
+</html>
