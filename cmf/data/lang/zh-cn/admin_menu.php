@@ -55,6 +55,7 @@ return array (
   'ADMIN_PLUGIN_UPDATE' => '插件更新',
   'ADMIN_QYQ_#' => '亲友圈管理',
   'ADMIN_QYQ_QYQ_DETAIL' => '亲友圈资料',
+  'ADMIN_QYQ_UP_BIND' => '修改绑定',
   'ADMIN_RBAC_AUTHORIZE' => '设置角色权限',
   'ADMIN_RBAC_AUTHORIZEPOST' => '角色授权提交',
   'ADMIN_RBAC_INDEX' => '角色管理',

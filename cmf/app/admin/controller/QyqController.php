@@ -152,4 +152,10 @@ class QyqController extends AdminBaseController
         }
     }
 
+    /**
+     * 修改玩家密码
+     */
+    public function up_bind() {
+        return $this->fetch();
+    }
 }

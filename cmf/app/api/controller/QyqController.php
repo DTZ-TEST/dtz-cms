@@ -237,4 +237,25 @@ class QyqController extends RestBaseController
             }
         }
     }
+
+    /**
+     * 修改绑定
+     */
+    public function up_user_bind() {
+        if(input('post.')){
+            $mid = cmf_get_current_admin_id();
+            $parm = input('post.');
+            $parm['time'] = time();
+            $apiurl = $apiurl = get_api_url()."modifyUserBindmapping.do";
+            $parm['sign'] = checkSign($parm);
+            $info = cmf_api_request($apiurl,$parm);
+            $res_info = decrypt_info($info);
+            if($res_info['code']===0){
+                apilog($mid."更换绑定成功");
+                return json($res_info);
+            }else{
+                return json($res_info);
+            }
+        }
+    }
 }
