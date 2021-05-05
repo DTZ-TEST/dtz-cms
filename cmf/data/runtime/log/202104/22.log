@@ -1,4 +1,0 @@
-[2021-04-22T09:53:29+08:00][error] [10501]SQLSTATE[42S02]: Base table or view not found: 1146 Table 'dtzcms.cmf_gold_commom_statistics' doesn't exist
-[2021-04-22T09:53:51+08:00][error] [10501]SQLSTATE[42S02]: Base table or view not found: 1146 Table 'dtzcms.cmf_gold_commom_statistics' doesn't exist
-[2021-04-22T09:53:52+08:00][error] [10501]SQLSTATE[42S02]: Base table or view not found: 1146 Table 'dtzcms.cmf_gold_commom_statistics' doesn't exist
-[2021-04-22T09:54:13+08:00][error] [10501]SQLSTATE[42S02]: Base table or view not found: 1146 Table 'dtzcms.cmf_gold_commom_statistics' doesn't exist

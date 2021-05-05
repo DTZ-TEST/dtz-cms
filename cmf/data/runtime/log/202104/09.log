@@ -1,3 +1,0 @@
-[2021-04-09T17:32:19+08:00][error] [10501]SQLSTATE[42S02]: Base table or view not found: 1146 Table 'dtz_login.log_group_table' doesn't exist
-[2021-04-09T17:32:30+08:00][error] [10501]SQLSTATE[42S02]: Base table or view not found: 1146 Table 'dtz_login.log_group_table' doesn't exist
-[2021-04-09T17:49:23+08:00][error] [10501]SQLSTATE[42S02]: Base table or view not found: 1146 Table 'dtz_login.log_group_table' doesn't exist

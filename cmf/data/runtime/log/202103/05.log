@@ -1,4 +1,0 @@
-[2021-03-05T09:54:46+08:00][error] [8]未定义数组索引: uid
-[2021-03-05T10:39:30+08:00][error] [0]Call to undefined function app\api\controller\get_qyq_hydatas()
-[2021-03-05T10:39:59+08:00][error] [0]Call to undefined function app\api\controller\get_qyq_hydatas()
-[2021-03-05T11:02:15+08:00][error] [10500]not support data:* as num
