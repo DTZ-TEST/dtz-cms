@@ -24,30 +24,30 @@ class StatisticsController extends RestBaseController
         $date_time = date('Y-m-d')." 00:00:00";
         $date1_time = date('Y-m-d',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))))." 00:00:00";
         $date1 = date('Ymd');
+        $date_c = date('Y-m-d');
         $date = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
         $where1 = " 1 and regTime>= '$date1_time' and regTime < '$date_time' ";
         $where2 = " currentDate = '$date'";
         $where3 = " dataDate = '$date' and dataType='jlbDjs'";
         $where4 = " dataDate = '$date' and dataType='djsCount'";
 
-        $where5 = " dataType = 'decDiamond' AND dataDate = '$date'";
+        $where5 = "consumeDate = '$date_c'";
         $where6 = " userId>=0";
         $xzdata = db('user_inf','mysql1')->where($where1)->count();
         $hydata = db('t_login_data','mysql1')->where($where2) ->group('userId')->count();
         $djdata = db('t_data_statistics','mysql1')->where($where4) ->count();
         $zjs = db('t_data_statistics','mysql1')->where($where3) ->count();
         //$xjs = db('log_group_table','mysql1')->where($where4)->field('ROUND(sum(player2count3 / 2 + player3Count3 / 3 + player4count3 / 4)) AS Xtotal')->select();
-        $card_xh = db('t_data_statistics','mysql1')->where($where5)->sum('dataValue');;
-
-        $card_sy1 = db('user_inf','mysql1')->where($where6)->sum('freeCards');
-        $card_sy2 = db('user_inf','mysql1')->where($where6)->sum('cards');
+        $card_info = db('roomcard_consume_statistics','mysql1')->field('commonCards,freeCards,freeCardSum,commonCardSum')->where($where5)->find();
+        $card_xh = abs($card_info['commonCards'])+abs($card_info['freeCards']);
+        $card_sy = intval($card_info['freeCardSum'])+intval($card_info['commonCardSum']);
         $parm['xzdata'] = $xzdata;
         $parm['hydata'] = $hydata;
         $parm['djdata'] = $djdata;
         $parm['zjs'] = $zjs[0]['Dtotal'];
         //$parm['xjs'] = $xjs[0]['Xtotal'];
         $parm['card_xh'] = $card_xh;
-        $parm['card_sy'] = $card_sy1 + $card_sy2;
+        $parm['card_sy'] = $card_sy;
         $parm['tdate']   = date('Y-m-d H:i:s',strtotime('-1 day'));
         $res = db('statistics_pt')->insert($parm);
         if($res!==false) {
@@ -70,7 +70,7 @@ class StatisticsController extends RestBaseController
         }
         $group_list = db('t_group','mysql1')->alias('a')->join('t_group_user b','a.groupId = b.groupId')
             ->where('a.parentGroup=0 and (a.groupId=3120 or a.groupId = 22200)')
-            ->field('a.groupId,b.promoterId1')
+            ->field('a.groupId,b.promoterId1,b.userId')
             ->group('a.groupId')
             ->select();
         if(empty($group_list)) {
@@ -88,7 +88,7 @@ class StatisticsController extends RestBaseController
             $data[$key]['zjs']     = $this->get_qyq_zjss($v['groupId'],$datex);
             //$data[$key]['xjs']     = $this->get_qyq_xjss($v['groupId'],$datex);
             $data[$key]['card_xh'] = $this->get_qyq_card_xhs($v['groupId'],$datex);
-            $data[$key]['card_sy'] = $this->get_qyq_card_sy($v['promoterId1']);
+            $data[$key]['card_sy'] = $this->get_qyq_card_sy($v['userId']);
         }
         db('statistics_qyq')->insertAll($data);
         apilog('亲友圈数据添加成功',1);
@@ -111,24 +111,24 @@ class StatisticsController extends RestBaseController
         $where3 = " dataDate = '$date1' and dataType='jlbDjs'";
         $where4 = " dataDate = '$date1' and dataType='djsCount'";
 
-        $where5 = " dataType = 'decDiamond' AND dataDate = '$date1'";
+        $where5 = "consumeDate = '$datex'";
         $where6 = " userId>=0";
         $xzdata = db('user_inf','mysql1')->where($where1)->count();
         $hydata = db('t_login_data','mysql1')->where($where2) ->group('userId')->count();
         $djdata = db('t_data_statistics','mysql1')->where($where4)->count();
         $zjs = db('t_data_statistics','mysql1')->where($where3)->count();
         //$xjs = db('log_group_table','mysql1')->where($where4)->field('ROUND(sum(player2count3 / 2 + player3Count3 / 3 + player4count3 / 4)) AS Xtotal')->select();
-        $card_xh = db('t_data_statistics','mysql1')->where($where5)->sum('dataValue');;
+        $card_info = db('roomcard_consume_statistics','mysql1')->field('commonCards,freeCards,freeCardSum,commonCardSum')->where($where5)->find();
+        $card_xh = abs($card_info['commonCards'])+abs($card_info['freeCards']);
+        $card_sy = intval($card_info['freeCardSum'])+intval($card_info['commonCardSum']);
 
-        $card_sy1 = db('user_inf','mysql1')->where($where6)->sum('freeCards');
-        $card_sy2 = db('user_inf','mysql1')->where($where6)->sum('cards');
         $parm['xzdata'] = $xzdata;
         $parm['hydata'] = $hydata;
         $parm['djdata'] = $djdata;
         $parm['zjs'] = $zjs[0]['Dtotal'];
         //$parm['xjs'] = $xjs[0]['Xtotal'];
         $parm['card_xh'] = $card_xh;
-        $parm['card_sy'] = $card_sy1 + $card_sy2;
+        $parm['card_sy'] = $card_sy;
         $parm['tdate']   = $datex;
         $res = db('statistics_pt')->insert($parm);
         if($res!==false) {
@@ -148,7 +148,7 @@ class StatisticsController extends RestBaseController
             return json(['code'=>-1,'message'=>$datex."日期已存在，无需重复生成"]);
         }
         $group_list = db('t_group','mysql1')->alias('a')->join('t_group_user b','a.groupId = b.groupId')
-            ->where('a.parentGroup=0')
+            ->where('a.parentGroup=0 and (a.groupId=3120 or a.groupId = 22200)')
             ->field('a.groupId,b.promoterId1')
             ->group('a.groupId')
             ->select();
@@ -189,6 +189,7 @@ class StatisticsController extends RestBaseController
      */
     public function get_qyq_hydata($groupId) {
         $date1 = date('Ymd');
+        $groupId = "group".$groupId;
         $date = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
         $where = " `dataCode` = $groupId AND `dataDate` = '$date' and dataType='djsCount'";
         $list = db('t_data_statistics','mysql1')->where($where)->count();
@@ -199,6 +200,7 @@ class StatisticsController extends RestBaseController
      */
     public function get_qyq_zjs($groupId) {
         $date1 = date('Ymd');
+        $groupId = "group".$groupId;
         $date = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
         $where = " `dataCode` = $groupId AND `dataDate` = '$date' and dataType='jlbDjs'";
         $list = db('t_data_statistics','mysql1')->where($where)->count();
@@ -218,10 +220,11 @@ class StatisticsController extends RestBaseController
      * 统计亲友圈钻石消耗
      */
     public function get_qyq_card_xh($groupId) {
+        $groupId = "group".$groupId;
         $date1 = date('Ymd');
         $date = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
-        $where = " dataType = 'decDiamond' AND dataDate = '$date' AND userId = $groupId";
-        $list = db('t_data_statistics','mysql1')->where($where)->sum('dataValue');
+        $where = " dataType = 'decDiamond' AND dataDate = '$date' AND `dataCode` = $groupId";
+        $list = db('t_data_statistics','mysql1')->where($where)->value('dataValue');
         return $list;
     }
     /**
@@ -240,6 +243,7 @@ class StatisticsController extends RestBaseController
     public function get_qyq_xzdatas($groupId ,$date) {
         $date_end = $date." 23:59:59";
         $date_satart = $date." 00:00:00";
+        $groupId = "group".$groupId;
         $where = " groupId = $groupId AND `createdTime` >= '$date_satart' AND `createdTime` < '$date_end'";
         $list = db('t_group_user','mysql1')->where($where)->count();
         return $list;
@@ -249,6 +253,7 @@ class StatisticsController extends RestBaseController
      */
     public function get_qyq_hydatas($groupId ,$date) {
         $date_info = date('Ymd',strtotime($date));
+        $groupId = "group".$groupId;
         $where = " `dataCode` = $groupId AND `dataDate` = '$date_info' and dataType='djsCount'";
         $list = db('t_data_statistics','mysql1')->where($where)->count();
         return $list;
@@ -258,8 +263,9 @@ class StatisticsController extends RestBaseController
      */
     public function get_qyq_zjss($groupId ,$date) {
         $datax = date('Ymd',strtotime($date));
+        $groupId = "group".$groupId;
         $where = " 1 and dataDate = '$datax' AND dataCode = $groupId and dataType='jlbDjs'";
-        $list = db('t_data_statistics','mysql1')->where($where)->count();
+        $list = db('t_data_statistics','mysql1')->where($where)->value('dataValue');
         return $list;
     }
     /**
@@ -277,8 +283,9 @@ class StatisticsController extends RestBaseController
 
     public function get_qyq_card_xhs($groupId ,$date) {
         $datax = date('Ymd',strtotime($date));
-        $where = " dataType = 'decDiamond' AND dataDate = '$datax' AND userId = $groupId";
-        $list = db('t_data_statistics','mysql1')->where($where)->sum('dataValue');
+        $groupId = "group".$groupId;
+        $where = " dataType = 'decDiamond' AND dataDate = '$datax' AND dataCode = $groupId";
+        $list = db('t_data_statistics','mysql1')->where($where)->value('dataValue');
         return $list;
     }
     /**
