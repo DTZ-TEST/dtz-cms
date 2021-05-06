@@ -235,12 +235,12 @@
                         btn: ['确定','取消'] //按钮
                     }, function() {
                         if(!lock){
+                            lock = true;
                             axios
                                 .post('/api/journal/add_cards',{userId: userId,cards:cards,freeCards:freeCards,type:type})
                                 .then(function (response) {
                                     if(response.data.code==0) {
                                         layer.msg(response.data.message);
-                                        lock = true;
                                         vm.seach();
                                         vm.get_pt_cards();
                                     }else{
@@ -259,6 +259,7 @@
                         btn: ['确定','取消'] //按钮
                     }, function() {
                         if(!lock) {
+                            lock = true;
                             axios
                                 .post('/api/journal/add_cards', {
                                     userId: userId,
@@ -269,7 +270,6 @@
                                 .then(function (response) {
                                     if (response.data.code == 0) {
                                         layer.msg(response.data.message);
-                                        lock = true;
                                         vm.seach();
                                         vm.get_pt_cards();
                                     } else {
@@ -286,15 +286,15 @@
             kc_card() {
                 let vm = this;
                 var lock      = false;
-                let card      = vm.cards;
-                let kc_number = vm.kc_number;
+                let card      = parseInt(vm.cards);
+                let kc_number = parseInt(vm.kc_number);
                 let userId    = vm.userId;
 
                 if(card < 1) {
                     layer.msg("余额不足");
                     return;
                 }
-                if(kc_number >card ){
+                if( kc_number > card ){
                     layer.msg("可扣余额不足！请核对");
                     return;
                 }

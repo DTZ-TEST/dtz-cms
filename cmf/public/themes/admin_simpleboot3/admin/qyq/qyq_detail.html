@@ -313,7 +313,7 @@
                     .then(function (response) {
                         console.log(response.data.data);
                         if(response.data.code==1) {
-                                vm.card = response.data.data.cards + response.data.data.freeCards;
+                                vm.card = parseInt(response.data.data.cards) + parseInt(response.data.data.freeCards);
                                 vm.currentCount = response.data.data.currentCount;
                                 vm.maxCount = response.data.data.maxCount;
                                 vm.name      = response.data.data.name;

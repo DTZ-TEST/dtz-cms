@@ -73,8 +73,11 @@ class StatisticsController extends RestBaseController
             ->field('a.groupId,b.promoterId1')
             ->group('a.groupId')
             ->select();
-        if(count($group_list)<1){
-            return ['code' => -1, 'msg' => '异常'];
+        if(empty($group_list)) {
+            return json(['code' => -3, 'msg' => '没有亲友圈','data'=>$group_list]);
+        }
+        if(count($group_list)<1 || count($group_list)>1000){
+            return json(['code' => -1, 'msg' => '异常','data'=>$group_list]);
         }
         foreach ($group_list as $key=>$v) {
             $data[$key]['groupId'] = $v['groupId'];
