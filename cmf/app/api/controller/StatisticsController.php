@@ -243,7 +243,6 @@ class StatisticsController extends RestBaseController
     public function get_qyq_xzdatas($groupId ,$date) {
         $date_end = $date." 23:59:59";
         $date_satart = $date." 00:00:00";
-        $groupId = "group".$groupId;
         $where = " groupId = $groupId AND `createdTime` >= '$date_satart' AND `createdTime` < '$date_end'";
         $list = db('t_group_user','mysql1')->where($where)->count();
         return $list;
