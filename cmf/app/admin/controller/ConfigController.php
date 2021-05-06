@@ -18,24 +18,26 @@ class ConfigController extends AdminBaseController
 
     public function ip_config()
     {
-        $file =  file_get_contents('D:/configList.json');
+        $url = db('config')->where('name','up_url')->value('value');
+        $file =  file_get_contents($url);
         $data_info = decrypt_info($file);
-       if(is_array($data_info)){
-           $httpList = $data_info['httpList']['ips'];
-           $loginList = $data_info['loginList']['ips'];
-           $hotList =   $data_info['hotList']['ips'];
-           $this->assign('httpList',$httpList);
-           $this->assign('loginList',$loginList);
-           $this->assign('hotList',$hotList);
-       }
-       return $this->fetch();
+        if(is_array($data_info)){
+            $httpList = $data_info['httpList']['ips'];
+            $loginList = $data_info['loginList']['ips'];
+            $hotList =   $data_info['hotList']['ips'];
+            $this->assign('httpList',$httpList);
+            $this->assign('loginList',$loginList);
+            $this->assign('hotList',$hotList);
+        }
+        return $this->fetch();
     }
-/**
- * 修改IP
-*/
+    /**
+     * 修改IP
+     */
     public function saves()
     {
-        $file = file_get_contents('D:/configList.json');
+        $url = db('config')->where('name','up_url')->value('value');
+        $file =  file_get_contents($url);
         $data_info = decrypt_info($file);
         if(input('post.')) {
             $parm = input('post.');
@@ -45,18 +47,18 @@ class ConfigController extends AdminBaseController
                 $data_info['hotList']['ips'] = $parm['hotList'];
             }
             $datas = encrypt_info(json_encode($data_info));
-            $res = file_put_contents('\configList.json',$datas);
+            $res = file_put_contents('configList.json',$datas);
             if($res!==false) {
                 return json(["code"=>1,"message"=>"保存成功"]);
             }
         }
     }
-/**
- * 导出json
-*/
+    /**
+     * 导出json
+     */
     public function excels()
     {
-        $filepath =  '\configList.json';
+        $filepath =  'configList.json';
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename='.basename($filepath));
@@ -70,7 +72,7 @@ class ConfigController extends AdminBaseController
 
     /**
      * 托管状态
-    */
+     */
     public function auto_play_off(){
         $info = db('t_resources_configs','mysql1')->where('msgKey','auto_play_off_servers')->value('msgValue');
         if($info!==false) {
