@@ -69,15 +69,15 @@ class StatisticsController extends RestBaseController
             return json(['code'=>-1,'message'=>$datex."日期已存在，无需重复生成"]);
         }
         $group_list = db('t_group','mysql1')->alias('a')->join('t_group_user b','a.groupId = b.groupId')
-            ->where('a.parentGroup=0')
+            ->where('a.parentGroup=0 and (a.groupId=3120 or a.groupId = 22200)')
             ->field('a.groupId,b.promoterId1')
             ->group('a.groupId')
             ->select();
         if(empty($group_list)) {
-            return json(['code' => -3, 'msg' => '没有亲友圈','data'=>$group_list]);
+            return json(['code' => -3, 'message' => '没有亲友圈','data'=>$group_list]);
         }
         if(count($group_list)<1 || count($group_list)>1000){
-            return json(['code' => -1, 'msg' => '异常','data'=>$group_list]);
+            return json(['code' => -1, 'message' => '异常','data'=>$group_list]);
         }
         foreach ($group_list as $key=>$v) {
             $data[$key]['groupId'] = $v['groupId'];
