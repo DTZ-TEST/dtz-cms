@@ -36,7 +36,7 @@ class StatisticsController extends RestBaseController
         $xzdata = db('user_inf','mysql1')->where($where1)->count();
         $hydata = db('t_login_data','mysql1')->where($where2) ->group('userId')->count();
         $djdata = db('t_data_statistics','mysql1')->where($where4) ->count();
-        $zjs = db('t_data_statistics','mysql1')->where($where3) ->count();
+        $zjs = db('t_data_statistics','mysql1')->where($where3) ->sum('dataValue');
         //$xjs = db('log_group_table','mysql1')->where($where4)->field('ROUND(sum(player2count3 / 2 + player3Count3 / 3 + player4count3 / 4)) AS Xtotal')->select();
         $card_info = db('roomcard_consume_statistics','mysql1')->field('commonCards,freeCards,freeCardSum,commonCardSum')->where($where5)->find();
         $card_xh = abs($card_info['commonCards'])+abs($card_info['freeCards']);
@@ -44,7 +44,7 @@ class StatisticsController extends RestBaseController
         $parm['xzdata'] = $xzdata;
         $parm['hydata'] = $hydata;
         $parm['djdata'] = $djdata;
-        $parm['zjs'] = $zjs[0]['Dtotal'];
+        $parm['zjs'] = $zjs;
         //$parm['xjs'] = $xjs[0]['Xtotal'];
         $parm['card_xh'] = $card_xh;
         $parm['card_sy'] = $card_sy;
@@ -116,7 +116,7 @@ class StatisticsController extends RestBaseController
         $xzdata = db('user_inf','mysql1')->where($where1)->count();
         $hydata = db('t_login_data','mysql1')->where($where2) ->group('userId')->count();
         $djdata = db('t_data_statistics','mysql1')->where($where4)->count();
-        $zjs = db('t_data_statistics','mysql1')->where($where3)->count();
+        $zjs = db('t_data_statistics','mysql1')->where($where3) ->sum('dataValue');
         //$xjs = db('log_group_table','mysql1')->where($where4)->field('ROUND(sum(player2count3 / 2 + player3Count3 / 3 + player4count3 / 4)) AS Xtotal')->select();
         $card_info = db('roomcard_consume_statistics','mysql1')->field('commonCards,freeCards,freeCardSum,commonCardSum')->where($where5)->find();
         $card_xh = abs($card_info['commonCards'])+abs($card_info['freeCards']);
@@ -125,7 +125,7 @@ class StatisticsController extends RestBaseController
         $parm['xzdata'] = $xzdata;
         $parm['hydata'] = $hydata;
         $parm['djdata'] = $djdata;
-        $parm['zjs'] = $zjs[0]['Dtotal'];
+        $parm['zjs'] = $zjs;
         //$parm['xjs'] = $xjs[0]['Xtotal'];
         $parm['card_xh'] = $card_xh;
         $parm['card_sy'] = $card_sy;
@@ -203,7 +203,7 @@ class StatisticsController extends RestBaseController
         $groupId = "group".$groupId;
         $date = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
         $where = " `dataCode` = $groupId AND `dataDate` = '$date' and dataType='jlbDjs'";
-        $list = db('t_data_statistics','mysql1')->where($where)->count();
+        $list = db('t_data_statistics','mysql1')->where($where)->value('dataValue');
         return $list;
     }
     /**
