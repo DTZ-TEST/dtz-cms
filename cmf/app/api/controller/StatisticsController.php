@@ -69,7 +69,7 @@ class StatisticsController extends RestBaseController
             return json(['code'=>-1,'message'=>$datex."日期已存在，无需重复生成"]);
         }
         $group_list = db('t_group','mysql1')->alias('a')->join('t_group_user b','a.groupId = b.groupId')
-            ->where('a.parentGroup=0 and (a.groupId=3120 or a.groupId = 22200)')
+            ->where('a.parentGroup=0 and (a.groupId=3120 or a.groupId = 22200 or a.groupId =2880)')
             ->field('a.groupId,b.promoterId1,b.userId')
             ->group('a.groupId')
             ->select();
@@ -191,7 +191,7 @@ class StatisticsController extends RestBaseController
         $date1 = date('Ymd');
         $groupId = "group".$groupId;
         $date = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
-        $where = " `dataCode` = $groupId AND `dataDate` = '$date' and dataType='djsCount'";
+        $where = " `dataCode` = '$groupId' AND `dataDate` = '$date' and dataType='djsCount'";
         $list = db('t_data_statistics','mysql1')->where($where)->count();
         return $list;
     }
@@ -202,7 +202,7 @@ class StatisticsController extends RestBaseController
         $date1 = date('Ymd');
         $groupId = "group".$groupId;
         $date = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
-        $where = " `dataCode` = $groupId AND `dataDate` = '$date' and dataType='jlbDjs'";
+        $where = " `dataCode` = '$groupId' AND `dataDate` = '$date' and dataType='jlbDjs'";
         $list = db('t_data_statistics','mysql1')->where($where)->value('dataValue');
         return $list;
     }
@@ -223,7 +223,7 @@ class StatisticsController extends RestBaseController
         $groupId = "group".$groupId;
         $date1 = date('Ymd');
         $date = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
-        $where = " dataType = 'decDiamond' AND dataDate = '$date' AND `dataCode` = $groupId";
+        $where = " dataType = 'decDiamond' AND dataDate = '$date' AND `dataCode` = '$groupId'";
         $list = db('t_data_statistics','mysql1')->where($where)->value('dataValue');
         return $list;
     }
@@ -253,7 +253,7 @@ class StatisticsController extends RestBaseController
     public function get_qyq_hydatas($groupId ,$date) {
         $date_info = date('Ymd',strtotime($date));
         $groupId = "group".$groupId;
-        $where = " `dataCode` = $groupId AND `dataDate` = '$date_info' and dataType='djsCount'";
+        $where = " `dataCode` = '$groupId' AND `dataDate` = '$date_info' and dataType='djsCount'";
         $list = db('t_data_statistics','mysql1')->where($where)->count();
         return $list;
     }
@@ -263,7 +263,7 @@ class StatisticsController extends RestBaseController
     public function get_qyq_zjss($groupId ,$date) {
         $datax = date('Ymd',strtotime($date));
         $groupId = "group".$groupId;
-        $where = " 1 and dataDate = '$datax' AND dataCode = $groupId and dataType='jlbDjs'";
+        $where = " 1 and dataDate = '$datax' AND dataCode = '$groupId' and dataType='jlbDjs'";
         $list = db('t_data_statistics','mysql1')->where($where)->value('dataValue');
         return $list;
     }
@@ -272,7 +272,7 @@ class StatisticsController extends RestBaseController
      */
     public function get_qyq_xjss($groupId ,$date) {
         $datax = date('Ymd',strtotime($date));
-        $where = " 1 and dataDate = '$datax' AND groupId = $groupId";
+        $where = " 1 and dataDate = '$datax' AND groupId = '$groupId'";
         $list = db('log_group_table','mysql1')->where($where)->field("sum(player2count3 / 2 + player3Count3 / 3 + player4count3 / 4) AS Xtotal")->select();
         return $list[0]['Xtotal'];
     }
@@ -283,8 +283,11 @@ class StatisticsController extends RestBaseController
     public function get_qyq_card_xhs($groupId ,$date) {
         $datax = date('Ymd',strtotime($date));
         $groupId = "group".$groupId;
-        $where = " dataType = 'decDiamond' AND dataDate = '$datax' AND dataCode = $groupId";
+        $where = " dataType = 'decDiamond' AND dataDate = '$datax' AND dataCode = '$groupId'";
         $list = db('t_data_statistics','mysql1')->where($where)->value('dataValue');
+        if(empty($list)){
+            $list = 0;
+        }
         return $list;
     }
     /**
