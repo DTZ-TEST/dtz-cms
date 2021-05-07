@@ -2402,3 +2402,58 @@ function apilog($cont) {
     $date['addtime'] = date('Y-m-d H:i:s');
     db('apilog')->insert($date);
 }
+/***
+ * 获取玩家上级id
+ */
+function get_promoterIds($groupId,$userRole,$promoterLevel,$qz,$userGroup,$promoterId1,$promoterId2,$promoterId3,$promoterId4){
+    $promoterIds = 0;
+    switch ($userRole){
+        case 0:         //群主
+            $promoterIds = 0;
+            break;
+        case 1:         //管理员
+            $promoterIds = $qz;
+            break;
+        case 10:         //组长
+            $promoterIds = $qz;
+            break;
+        case 20:       //拉手    promoterLevel=1级拉手 上级是组长  promoterLevel=2   promoterId1
+            switch ($promoterLevel){
+                case 1:
+                    $where = " userGroup = '$userGroup' and userRole=10 and groupId=$groupId";
+                    $promoterIds = db('t_group_user','mysql1')->where($where)->value('userId');
+                    break;
+                case 2:
+                    $promoterIds = $promoterId1;
+                    break;
+                case 3:
+                    $promoterIds = $promoterId2;
+                    break;
+                case 4:
+                    $promoterIds = $promoterId3;
+                    break;
+            }
+            break;
+        case 2:        //会员   promoterLevel=0级 找 群主 1 找组长  >1
+            switch ($promoterLevel){
+                case 0:
+                    $promoterIds = $qz;
+                    break;
+                case 1:
+                    $where = " userGroup = '$userGroup' and userRole=10 and groupId=$groupId";
+                    $promoterIds = db('t_group_user','mysql1')->where($where)->value('userId');
+                    break;
+                case 2:
+                    $promoterIds = $promoterId1;
+                    break;
+                case 3:
+                    $promoterIds = $promoterId2;
+                    break;
+                case 4:
+                    $promoterIds = $promoterId3;
+                    break;
+            }
+            break;
+    }
+    return  $promoterIds;
+}
