@@ -53,17 +53,19 @@
                             <tr class="long-td">
                                 <td>{{d[i].userId}}</td>
                                 <td>{{d[i].userNickname}}</td>
-                                {{# if(d[i].userRole==1){ }}
+                                {{# if(d[i].userRole==0){ }}
                                 <td class="label-danger">群主</td>
-                                {{# }else if(d[i].userRole==2){ }}
+                                {{# }else if(d[i].userRole==1){ }}
                                 <td class="label-info">管理员</td>
-                                {{# }else if(d[i].userRole==10000){ }}
-                                <td class="label-warning">合伙人</td>
-                                {{# }else if(d[i].userRole==90000){ }}
+                                {{# }else if(d[i].userRole==10){ }}
+                                <td class="label-warning">组长</td>
+                                {{# }else if(d[i].userRole==20){ }}
+                                <td class="label-success">拉手</td>
+                                {{# }else if(d[i].userRole==2){ }}
                                 <td class="label-default" style="color: #fff">成员</td>
                                 {{# }else{ }}
                                 {{# } }}
-                                <td style="color: red">{{d[i].credit / 100}}</td>
+                                <td style="color: red">{{d[i].credit}}</td>
                                 <td>{{d[i].promoterId}}</td>
                                 <!--<td><a href="javascript:;" onclick="fireUser({{d[i].userId}})" class="btn btn-primary btn-outline btn-xs">-->
                                     <!--<i class="fa fa-paste"></i> 踢出亲友圈</a>&nbsp;&nbsp;-->

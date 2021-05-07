@@ -126,8 +126,8 @@
             <!-- End Example Pagination -->
             <div class="hr-line-dashed" style="margin-top: 80px"></div>
             <div class="form-group">
-                <button class="col-sm-2 btn btn-primary" @click="add_cards(1)">赠送</button>
-                <button class="col-sm-2 btn btn-info" @click="add_cards(2)" style="margin-left: 10px">补偿</button>
+                <button class="col-sm-2 btn btn-primary" @click="add_cards()">赠送</button>
+                <button class="col-sm-2 btn btn-info" @click="bc_cards()" style="margin-left: 10px">补偿</button>
             </div>
             <div class="hr-line-dashed" style="margin-top: 80px"></div>
             <div class="form-group">
@@ -213,13 +213,14 @@
                 }
                 vm.card_number = parseInt(vm.card_number)+ parseInt(n);
             },
-            add_cards (type) {
+            add_cards () {
+                let type = 1;
                 let vm = this;
                 var lock  = false;
                 let card_number = vm.card_number;
                 let userId      = vm.userId;
-                let cards;
-                let freeCards;
+                let cards = card_number;
+                let freeCards = 0;
                 if(!card_number || card_number<1){
                     layer.msg("请输入钻石数量！");
                     return;
@@ -228,60 +229,73 @@
                     layer.msg("请输入需要充值的用户id！");
                     return;
                 }
-                if(type===1) {
-                     cards = card_number;
-                     freeCards = 0;
-                    layer.confirm('您确定要赠送钻石吗？', {
-                        btn: ['确定','取消'] //按钮
-                    }, function() {
-                        if(!lock){
-                            lock = true;
-                            axios
-                                .post('/api/journal/add_cards',{userId: userId,cards:cards,freeCards:freeCards,type:type})
-                                .then(function (response) {
-                                    if(response.data.code==0) {
-                                        layer.msg(response.data.message);
-                                        vm.seach();
-                                        vm.get_pt_cards();
-                                    }else{
-                                        layer.msg(response.data.message);
-                                    }
-                                })
-                                .catch(function (error) { // 请求失败处理
-                                    console.log(error);
-                                });
-                        }
-                    })
-                }else{
-                     cards = 0;
-                     freeCards = card_number;
-                    layer.confirm('您确定要补偿钻石吗？', {
-                        btn: ['确定','取消'] //按钮
-                    }, function() {
-                        if(!lock) {
-                            lock = true;
-                            axios
-                                .post('/api/journal/add_cards', {
-                                    userId: userId,
-                                    cards: cards,
-                                    freeCards: freeCards,
-                                    type: type
-                                })
-                                .then(function (response) {
-                                    if (response.data.code == 0) {
-                                        layer.msg(response.data.message);
-                                        vm.seach();
-                                        vm.get_pt_cards();
-                                    } else {
-                                        layer.msg(response.data.message);
-                                    }
-                                })
-                                .catch(function (error) { // 请求失败处理
-                                    console.log(error);
-                                });
-                        }
-                    })
+                layer.confirm('您确定要赠送钻石吗？', {
+                    btn: ['确定','取消'] //按钮
+                }, function() {
+                    if(!lock){
+                        lock = true;
+                        axios
+                            .post('/api/journal/add_cards',{userId: userId,cards:cards,freeCards:freeCards,type:type})
+                            .then(function (response) {
+                                if(response.data.code==0) {
+                                    layer.msg(response.data.message);
+                                    vm.seach();
+                                    vm.get_pt_cards();
+                                }else{
+                                    layer.msg(response.data.message);
+                                }
+                            })
+                            .catch(function (error) { // 请求失败处理
+                                console.log(error);
+                            });
+                    }else{
+                        return;
+                    }
+                })
+            },
+            bc_cards () {
+                let type = 2;
+                let vm = this;
+                var lock  = false;
+                let card_number = vm.card_number;
+                let userId      = vm.userId;
+                let cards = 0;
+                let freeCards = card_number;
+                if(!card_number || card_number<1){
+                    layer.msg("请输入钻石数量！");
+                    return;
                 }
+                if(!userId) {
+                    layer.msg("请输入需要充值的用户id！");
+                    return;
+                }
+                layer.confirm('您确定要补偿钻石吗？', {
+                    btn: ['确定','取消'] //按钮
+                }, function() {
+                    if(!lock) {
+                        lock = true;
+                        axios
+                            .post('/api/journal/add_cards', {
+                                userId: userId,
+                                cards: cards,
+                                freeCards: freeCards,
+                                type: type
+                            })
+                            .then(function (response) {
+                                lock = true;
+                                if (response.data.code == 0) {
+                                    layer.msg(response.data.message);
+                                    vm.seach();
+                                    vm.get_pt_cards();
+                                } else {
+                                    layer.msg(response.data.message);
+                                }
+                            })
+                            .catch(function (error) { // 请求失败处理
+                                console.log(error);
+                            });
+                    }
+                })
             },
             kc_card() {
                 let vm = this;
