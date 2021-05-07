@@ -2346,7 +2346,7 @@ function checkSign($params_info) {
 /**
  */
 function getuid_byname($uid) {
-    $nickname = db('user')->where('id',$uid)->value('user_nickname');
+    $nickname = db('user')->where('id',$uid)->value('user_login');
     return $nickname ? $nickname : "暂无";
 }
 /**
