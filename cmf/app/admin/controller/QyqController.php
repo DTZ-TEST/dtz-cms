@@ -40,10 +40,18 @@ class QyqController extends AdminBaseController
         $count = db('t_group_user','mysql1')->where('groupId',$gid)->count();//计算总页面
         $allpage = intval(ceil($count[0]['numbers'] / $limits));
         $lists = db('t_group_user','mysql1')->where('groupId',$gid)->page($Nowpage, $limits)->select();
+        $qz    = db('t_group_user','mysql1')->where('groupId',$gid)->where('userRole',0)->value('userId');
+        if(!is_array($lists)){
+            $lists = $lists->toArray();
+            foreach ($lists as $keys=>$v) {
+                $lists[$keys]['promoterIds'] = get_promoterIds($lists[$keys]['groupId'],$lists[$keys]['userRole'],$lists[$keys]['promoterLevel'],$qz,$lists[$keys]['userGroup'],$lists[$keys]['promoterId1'],$lists[$keys]['promoterId2'],$lists[$keys]['promoterId3'],$lists[$keys]['promoterId4']);
+            }
+        }
         if(input('get.page'))
         {
             return json($lists);
         }
+
         $this->assign('Nowpage', $Nowpage); //当前页
         $this->assign('allpage', $allpage); //总页数
         $this->assign('val', $key);
