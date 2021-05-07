@@ -68,10 +68,10 @@ class StatisticsController extends RestBaseController
         if(!empty($info)){
             return json(['code'=>-1,'message'=>$datex."日期已存在，无需重复生成"]);
         }
-        $group_list = db('t_group','mysql1')->alias('a')->join('t_group_user b','a.groupId = b.groupId')
-            ->where('a.parentGroup=0 and (a.groupId=3120 or a.groupId = 22200 or a.groupId =2880)')
-            ->field('a.groupId,b.promoterId1,b.userId')
-            ->group('a.groupId')
+        $group_list = db('t_group_user','mysql1')
+            ->where('userRole=0 and (groupId=3120 or groupId = 22200 or groupId = 2880)')
+            ->field('groupId,userId')
+            ->group('groupId')
             ->select();
         if(empty($group_list)) {
             return json(['code' => -3, 'message' => '没有亲友圈','data'=>$group_list]);
@@ -81,7 +81,7 @@ class StatisticsController extends RestBaseController
         }
         foreach ($group_list as $key=>$v) {
             $data[$key]['groupId'] = $v['groupId'];
-            $data[$key]['userId']  = $v['promoterId1'];
+            $data[$key]['userId']  = $v['userId'];
             $data[$key]['tdate']   = $datex;
             $data[$key]['xzdata']  = $this->get_qyq_xzdatas($v['groupId'],$datex);
             $data[$key]['djdata']  = $this->get_qyq_hydatas($v['groupId'],$datex);
@@ -147,10 +147,10 @@ class StatisticsController extends RestBaseController
         if(!empty($info)){
             return json(['code'=>-1,'message'=>$datex."日期已存在，无需重复生成"]);
         }
-        $group_list = db('t_group','mysql1')->alias('a')->join('t_group_user b','a.groupId = b.groupId')
-            ->where('a.parentGroup=0 and (a.groupId=3120 or a.groupId = 22200)')
-            ->field('a.groupId,b.promoterId1')
-            ->group('a.groupId')
+        $group_list = db('t_group_user','mysql1')
+            ->where('userRole=0 and (groupId=3120 or groupId = 22200)')
+            ->field('groupId,userId')
+            ->group('groupId')
             ->select();
 
         if(count($group_list)<1){
@@ -158,14 +158,14 @@ class StatisticsController extends RestBaseController
         }
         foreach ($group_list as $key=>$v) {
             $data[$key]['groupId'] = $v['groupId'];
-            $data[$key]['userId']  = $v['promoterId1'];
+            $data[$key]['userId']  = $v['userId'];
             $data[$key]['tdate']   = $datex;
             $data[$key]['xzdata']  = $this->get_qyq_xzdata($v['groupId']);
             $data[$key]['djdata']  = $this->get_qyq_hydata($v['groupId']);
             $data[$key]['zjs']     = $this->get_qyq_zjs($v['groupId']);
             $data[$key]['xjs']     = $this->get_qyq_xjs($v['groupId']);
             $data[$key]['card_xh'] = $this->get_qyq_card_xh($v['groupId']);
-            $data[$key]['card_sy'] = $this->get_qyq_card_sy($v['promoterId1']);
+            $data[$key]['card_sy'] = $this->get_qyq_card_sy($v['userId']);
         }
         db('statistics_qyq')->insertAll($data);
         apilog('亲友圈数据添加成功',1);
@@ -230,8 +230,8 @@ class StatisticsController extends RestBaseController
     /**
      * 统计亲友圈钻石剩余
      */
-    public function get_qyq_card_sy($groupId) {
-        $where = " userId = $groupId";
+    public function get_qyq_card_sy($userId) {
+        $where = " userId = $userId";
         $freeCards = db('user_inf','mysql1')->where($where)->sum('freeCards');
         $cards = db('user_inf','mysql1')->where($where)->sum('Cards');
         return $freeCards + $cards;
@@ -265,6 +265,9 @@ class StatisticsController extends RestBaseController
         $groupId = "group".$groupId;
         $where = " 1 and dataDate = '$datax' AND dataCode = '$groupId' and dataType='jlbDjs'";
         $list = db('t_data_statistics','mysql1')->where($where)->value('dataValue');
+        if(empty($list)){
+            return 0;
+        }
         return $list;
     }
     /**
