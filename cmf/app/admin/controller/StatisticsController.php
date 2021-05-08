@@ -45,7 +45,7 @@ class StatisticsController extends AdminBaseController
                 $end_time   = date('Y-m-d H:i:s');
             }
             $where = " 1 and tdate >= '$start_time' and tdate<='$end_time'";
-            $cont_list = db('statistics_pt')->where($where)->select();
+            $cont_list = db('statistics_pt')->where($where)->order('tdate desc')->select();
             return json(['data'=>$cont_list,'code'=>1]);
         }
         $this->assign('start_time', $s_time); //当前页

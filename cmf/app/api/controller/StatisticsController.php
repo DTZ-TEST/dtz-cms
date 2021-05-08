@@ -24,14 +24,14 @@ class StatisticsController extends RestBaseController
         $date_time = date('Y-m-d')." 00:00:00";
         $date1_time = date('Y-m-d',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))))." 00:00:00";
         $date1 = date('Ymd');
-        $date_c = date('Y-m-d');
+        $date_c = date('Y-m-d',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
         $date = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
-        $where1 = " 1 and regTime>= '$date1_time' and regTime < '$date_time' ";
-        $where2 = " currentDate = '$date'";
-        $where3 = " dataDate = '$date' and dataType='jlbDjs'";
-        $where4 = " dataDate = '$date' and dataType='djsCount'";
+        $where1 = " 1 and regTime>= '$date1_time' and regTime < '$date_time' "; //查询新增注册人数
+        $where2 = " currentDate = '$date'";                                         //查询活跃人数
+        $where3 = " dataDate = '$date' and dataType='jlbDjs'";                    //查询对局人数
+        $where4 = " dataDate = '$date' and dataType='djsCount'";                    //查询大局数
 
-        $where5 = "consumeDate = '$date_c'";
+        $where5 = "consumeDate = '$date_c'";                                        //查询钻石剩余
         $where6 = " userId>=0";
         $xzdata = db('user_inf','mysql1')->where($where1)->count();
         $hydata = db('t_login_data','mysql1')->where($where2) ->group('userId')->count();
