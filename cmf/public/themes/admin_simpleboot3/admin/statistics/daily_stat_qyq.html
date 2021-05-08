@@ -50,7 +50,7 @@
                             <th width="5%">注册人数</th>
                             <th width="6%">玩牌用户数</th>
                             <th width="5%">玩牌总局数</th>
-                            <!--<th width="5%">玩牌小局数</th>-->
+                            <th width="5%">玩牌小局数</th>
                             <th width="5%">钻石消耗</th>
                             <th width="5%">钻石剩余</th>
                             <!--<th width="5%">钻石总赠送</th>-->
@@ -63,7 +63,7 @@
                                 <td>{{item.xzdata}}</td>
                                 <td>{{item.djdata}}</td>
                                 <td>{{item.zjs}}</td>
-                                <!--<td>{{item.xjs}}</td>-->
+                                <td>{{item.xjs}}</td>
                                 <td style="color: red;font-weight: bold">{{item.card_xh}}</td>
                                 <td style="color: green">{{item.card_sy}}</td>
                             </tr>
@@ -129,7 +129,7 @@
                             trigger: 'axis'
                         },
                         legend: {
-                            data: ['注册人数', '对局次数', '钻石剩余', '钻石消耗', '大局数']
+                            data: ['注册人数', '对局次数', '钻石剩余', '钻石消耗', '大局数','小局数']
                         },
                         toolbox: {
                             show: true,
@@ -223,6 +223,22 @@
                                 name: '大局数',
                                 type: 'line',
                                 data: zjs,
+                                markPoint: {
+                                    data: [
+                                        {type: 'max', name: '最大值'},
+                                        {type: 'min', name: '最小值'}
+                                    ]
+                                },
+                                markLine: {
+                                    data: [
+                                        {type: 'average', name: '平均值'}
+                                    ]
+                                }
+                            },
+                            {
+                                name: '小局数',
+                                type: 'line',
+                                data: xjs,
                                 markPoint: {
                                     data: [
                                         {type: 'max', name: '最大值'},
