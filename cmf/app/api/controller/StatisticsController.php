@@ -28,16 +28,16 @@ class StatisticsController extends RestBaseController
         $date = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
         $where1 = " 1 and regTime>= '$date1_time' and regTime < '$date_time' "; //查询新增注册人数
         $where2 = " currentDate = '$date'";                                         //查询活跃人数
-        $where3 = " dataDate = '$date' and dataType='jlbDjs'";                    //查询对局人数
-        $where4 = " dataDate = '$date' and dataType='djsCount'";                    //查询大局数
-
-        $where5 = "consumeDate = '$date_c'";                                        //查询钻石剩余
+        $where3 = " dataDate = '$date' and dataType='jlbDjs'";                     //查询大局数
+        $where4 = " dataDate = '$date' and dataType='djsCount'";                   //查询玩牌用户数
+        $xjs_where = " dataDate = '$date' and dataType='xjsCount'";                 //查询小局数
+        $where5 = "consumeDate = '$date_c'";                                           //查询钻石剩余
         $where6 = " userId>=0";
         $xzdata = db('user_inf','mysql1')->where($where1)->count();
         $hydata = db('t_login_data','mysql1')->where($where2) ->group('userId')->count();
-        $djdata = db('t_data_statistics','mysql1')->where($where4) ->count();
+        $djdata = db('t_data_statistics','mysql1')->where($where4)->group('userId')->count();
         $zjs = db('t_data_statistics','mysql1')->where($where3) ->sum('dataValue');
-        //$xjs = db('log_group_table','mysql1')->where($where4)->field('ROUND(sum(player2count3 / 2 + player3Count3 / 3 + player4count3 / 4)) AS Xtotal')->select();
+        $xjs = db('t_data_statistics','mysql1')->where($xjs_where) ->sum('dataValue');
         $card_info = db('roomcard_consume_statistics','mysql1')->field('commonCards,freeCards,freeCardSum,commonCardSum')->where($where5)->find();
         $card_xh = abs($card_info['commonCards'])+abs($card_info['freeCards']);
         $card_sy = intval($card_info['freeCardSum'])+intval($card_info['commonCardSum']);
@@ -45,7 +45,7 @@ class StatisticsController extends RestBaseController
         $parm['hydata'] = $hydata;
         $parm['djdata'] = $djdata;
         $parm['zjs'] = $zjs;
-        //$parm['xjs'] = $xjs[0]['Xtotal'];
+        $parm['xjs'] = $xjs;
         $parm['card_xh'] = $card_xh;
         $parm['card_sy'] = $card_sy;
         $parm['tdate']   = date('Y-m-d H:i:s',strtotime('-1 day'));
@@ -86,7 +86,7 @@ class StatisticsController extends RestBaseController
             $data[$key]['xzdata']  = $this->get_qyq_xzdatas($v['groupId'],$datex);
             $data[$key]['djdata']  = $this->get_qyq_hydatas($v['groupId'],$datex);
             $data[$key]['zjs']     = $this->get_qyq_zjss($v['groupId'],$datex);
-            //$data[$key]['xjs']     = $this->get_qyq_xjss($v['groupId'],$datex);
+            $data[$key]['xjs']     = $this->get_qyq_xjss($v['groupId'],$datex);
             $data[$key]['card_xh'] = $this->get_qyq_card_xhs($v['groupId'],$datex);
             $data[$key]['card_sy'] = $this->get_qyq_card_sy($v['userId']);
         }
@@ -110,14 +110,15 @@ class StatisticsController extends RestBaseController
         $where2 = " currentDate = '$date1'";
         $where3 = " dataDate = '$date1' and dataType='jlbDjs'";
         $where4 = " dataDate = '$date1' and dataType='djsCount'";
+        $xjs_where = " dataDate = '$date1' and dataType='xjsCount'";
 
         $where5 = "consumeDate = '$datex'";
         $where6 = " userId>=0";
         $xzdata = db('user_inf','mysql1')->where($where1)->count();
         $hydata = db('t_login_data','mysql1')->where($where2) ->group('userId')->count();
-        $djdata = db('t_data_statistics','mysql1')->where($where4)->count();
+        $djdata = db('t_data_statistics','mysql1')->where($where4)->group('userId')->count();
         $zjs = db('t_data_statistics','mysql1')->where($where3) ->sum('dataValue');
-        //$xjs = db('log_group_table','mysql1')->where($where4)->field('ROUND(sum(player2count3 / 2 + player3Count3 / 3 + player4count3 / 4)) AS Xtotal')->select();
+        $xjs = db('t_data_statistics','mysql1')->where($xjs_where) ->sum('dataValue');
         $card_info = db('roomcard_consume_statistics','mysql1')->field('commonCards,freeCards,freeCardSum,commonCardSum')->where($where5)->find();
         $card_xh = abs($card_info['commonCards'])+abs($card_info['freeCards']);
         $card_sy = intval($card_info['freeCardSum'])+intval($card_info['commonCardSum']);
@@ -126,7 +127,7 @@ class StatisticsController extends RestBaseController
         $parm['hydata'] = $hydata;
         $parm['djdata'] = $djdata;
         $parm['zjs'] = $zjs;
-        //$parm['xjs'] = $xjs[0]['Xtotal'];
+        $parm['xjs'] = $xjs;
         $parm['card_xh'] = $card_xh;
         $parm['card_sy'] = $card_sy;
         $parm['tdate']   = $datex;
@@ -211,10 +212,11 @@ class StatisticsController extends RestBaseController
      */
     public function get_qyq_xjs($groupId) {
         $date1 = date('Ymd');
+        $groupId = "group".$groupId;
         $date = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
-        $where = " dataDate = '$date' AND groupId = $groupId ";
-        $list = db('log_group_table','mysql1')->where($where)->field("ROUND(sum(player2count3 / 2 + player3Count3 / 3 + player4count3 / 4)) AS Xtotal")->select();
-        return $list[0]['Xtotal'];
+        $where = " `dataCode` = '$groupId' AND `dataDate` = '$date' and dataType='xjsCount'";
+        $list = db('t_data_statistics','mysql1')->where($where)->sum('dataValue');
+        return $list;
     }
     /**
      * 统计亲友圈钻石消耗
@@ -275,9 +277,13 @@ class StatisticsController extends RestBaseController
      */
     public function get_qyq_xjss($groupId ,$date) {
         $datax = date('Ymd',strtotime($date));
-        $where = " 1 and dataDate = '$datax' AND groupId = '$groupId'";
-        $list = db('log_group_table','mysql1')->where($where)->field("sum(player2count3 / 2 + player3Count3 / 3 + player4count3 / 4) AS Xtotal")->select();
-        return $list[0]['Xtotal'];
+        $groupId = "group".$groupId;
+        $where = " 1 and dataDate = '$datax' AND dataCode = '$groupId' and dataType='xjsCount'";
+        $list = db('t_data_statistics','mysql1')->where($where)->sum('dataValue');
+        if(empty($list)){
+            return 0;
+        }
+        return $list;
     }
     /**
      * 统计亲友圈钻石消耗
