@@ -49,6 +49,9 @@ class StatisticsController extends RestBaseController
         $parm['card_xh'] = $card_xh;
         $parm['card_sy'] = $card_sy;
         $parm['tdate']   = date('Y-m-d H:i:s',strtotime('-1 day'));
+        $d_date = date('Y-m-d',strtotime('-31 day'));;
+        $d_where = " tdate <= '$d_date'";
+        db('statistics_pt')->where($d_where)->delete();//清除一个月之前的统计数据
         $res = db('statistics_pt')->insert($parm);
         if($res!==false) {
             apilog('平台数据添加成功',1);
@@ -148,29 +151,32 @@ class StatisticsController extends RestBaseController
         if(!empty($info)){
             return json(['code'=>-1,'message'=>$datex."日期已存在，无需重复生成"]);
         }
+        $d_date = date('Y-m-d',strtotime('-31 day'));
+        $d_where = " tdate <= '$d_date'";
+        db('statistics_qyq')->where($d_where)->delete();//清除一个月之前的统计数据
         $group_list = db('t_group_user','mysql1')
-            ->where('userRole=0 and (groupId=3120 or groupId = 22200)')
+            ->where('userRole=0 and (groupId=3120 or groupId = 22200 or groupId=2880)')
             ->field('groupId,userId')
             ->group('groupId')
             ->select();
-
-        if(count($group_list)<1){
+        if(count($group_list)<1 || empty($group_list)){
             return ['code' => -1, 'msg' => '异常'];
+        }else{
+            foreach ($group_list as $key=>$v) {
+                $data[$key]['groupId'] = $v['groupId'];
+                $data[$key]['userId']  = $v['userId'];
+                $data[$key]['tdate']   = $datex;
+                $data[$key]['xzdata']  = $this->get_qyq_xzdata($v['groupId']);
+                $data[$key]['djdata']  = $this->get_qyq_hydata($v['groupId']);
+                $data[$key]['zjs']     = $this->get_qyq_zjs($v['groupId']);
+                $data[$key]['xjs']     = $this->get_qyq_xjs($v['groupId']);
+                $data[$key]['card_xh'] = $this->get_qyq_card_xh($v['groupId']);
+                $data[$key]['card_sy'] = $this->get_qyq_card_sy($v['userId']);
+            }
+            db('statistics_qyq')->insertAll($data);
+            apilog('亲友圈数据添加成功',1);
+            $this->success('请求成功!', ['code' => 1, 'data' => '', 'msg' => '添加数据成功']);
         }
-        foreach ($group_list as $key=>$v) {
-            $data[$key]['groupId'] = $v['groupId'];
-            $data[$key]['userId']  = $v['userId'];
-            $data[$key]['tdate']   = $datex;
-            $data[$key]['xzdata']  = $this->get_qyq_xzdata($v['groupId']);
-            $data[$key]['djdata']  = $this->get_qyq_hydata($v['groupId']);
-            $data[$key]['zjs']     = $this->get_qyq_zjs($v['groupId']);
-            $data[$key]['xjs']     = $this->get_qyq_xjs($v['groupId']);
-            $data[$key]['card_xh'] = $this->get_qyq_card_xh($v['groupId']);
-            $data[$key]['card_sy'] = $this->get_qyq_card_sy($v['userId']);
-        }
-        db('statistics_qyq')->insertAll($data);
-        apilog('亲友圈数据添加成功',1);
-        $this->success('请求成功!', ['code' => 1, 'data' => '', 'msg' => '添加数据成功']);
     }
 
 
@@ -205,6 +211,9 @@ class StatisticsController extends RestBaseController
         $date = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
         $where = " `dataCode` = '$groupId' AND `dataDate` = '$date' and dataType='jlbDjs'";
         $list = db('t_data_statistics','mysql1')->where($where)->value('dataValue');
+        if(empty($list)){
+            return 0;
+        }
         return $list;
     }
     /**
@@ -216,6 +225,9 @@ class StatisticsController extends RestBaseController
         $date = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
         $where = " `dataCode` = '$groupId' AND `dataDate` = '$date' and dataType='xjsCount'";
         $list = db('t_data_statistics','mysql1')->where($where)->sum('dataValue');
+        if(empty($list)){
+            return 0;
+        }
         return $list;
     }
     /**
@@ -227,6 +239,9 @@ class StatisticsController extends RestBaseController
         $date = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
         $where = " dataType = 'decDiamond' AND dataDate = '$date' AND `dataCode` = '$groupId'";
         $list = db('t_data_statistics','mysql1')->where($where)->value('dataValue');
+        if(empty($list)){
+            return 0;
+        }
         return $list;
     }
     /**

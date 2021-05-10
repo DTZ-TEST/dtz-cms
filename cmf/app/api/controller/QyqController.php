@@ -258,4 +258,34 @@ class QyqController extends RestBaseController
             }
         }
     }
+
+    /**
+     *查看拉手占成
+     */
+    public function get_creditCommissionRate () {
+        $groupId = input('groupId');
+        $userId   = input('userId');
+        $where = " groupId = $groupId and userId = $userId";
+        $creditCommissionRate = db('t_group_user','mysql1')->where($where)->find();
+        if(!empty($creditCommissionRate)) {
+            return json(['code'=>1,'creditCommissionRate'=>$creditCommissionRate['creditCommissionRate'],'userRole'=>$creditCommissionRate['userRole']]);
+        }else{
+            return json(['code'=>-1,'message'=>"用户信息不存在"]);
+        }
+    }
+
+    /**
+     *修改拉手占成
+     */
+    public function up_creditCommissionRate () {
+        $groupId = input('groupId');
+        $userId   = input('userId');
+        $creditCommissionRate = input('creditCommissionRate');
+        $where = " groupId = $groupId and userId = $userId and (userRole=10 or userRole=20)";
+        $data['creditCommissionRate']  = $creditCommissionRate;
+        $creditCommissionRate = db('t_group_user','mysql1')->where($where)->update($data);
+        if(!empty($creditCommissionRate)) {
+            return json(['code'=>1,'message'=>"修改成功"]);
+        }
+    }
 }

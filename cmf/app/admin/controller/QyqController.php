@@ -166,4 +166,12 @@ class QyqController extends AdminBaseController
     public function up_bind() {
         return $this->fetch();
     }
+
+    /**
+     * 修改玩家密码
+     */
+    public function up_shares() {
+        return $this->fetch();
+    }
+
 }
