@@ -17,11 +17,11 @@
                 <span class="input-group-addon">占成%</span>
             </div>
             <div class="input-group" style="margin-top: 10px">
-                <label class="label label-danger"  v-if="userRole===0">群主</label>
-                <label class="label label-success" v-if="userRole===1">管理员</label>
-                <label class="label label-success" v-if="userRole===10">组长</label>
-                <label class="label label-success" v-if="userRole===20">拉手</label>
-                <label class="label label-success" v-if="userRole===2">普通成员</label>
+                <label class="label label-danger"  v-if="userRole==0">群主</label>
+                <label class="label label-success" v-if="userRole==1">管理员</label>
+                <label class="label label-success" v-if="userRole==10">组长</label>
+                <label class="label label-success" v-if="userRole==20">拉手</label>
+                <label class="label label-success" v-if="userRole==2">普通成员</label>
             </div>
         </div>
     </div>
@@ -92,7 +92,7 @@
                 let groupId = vm.groupId;
                 let creditCommissionRate = vm.creditCommissionRate;
                 let userRole = vm.userRole;
-                if(userRole!==10 && userRole !==20) {
+                if(userRole!=10 && userRole !=20) {
                     layer.msg("用户不是组长和拉手 不能修改占成");
                     return;
                 }
