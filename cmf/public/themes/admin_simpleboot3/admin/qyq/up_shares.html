@@ -1,0 +1,128 @@
+<include file="public@headers" />
+</head>
+<body>
+<div class="wrap js-check-wrap" id="up_shares">
+    <div class="row" style="height: 150px;margin-top: 30px">
+        <div class="col-sm-3">
+            <div class="input-group">
+                <input type="text" class="form-control"  v-model="groupId" placeholder="请输入groupId" aria-describedby="basic-addon2">
+                <span class="input-group-addon" >亲友圈Id</span>
+            </div>
+            <div class="input-group">
+                <input type="text" class="form-control"  v-model="UserId" placeholder="请输入UserId" aria-describedby="basic-addon2">
+                <span class="input-group-addon">组长或者拉手Id</span>
+            </div>
+            <div class="input-group" style="margin-top: 10px">
+                <input type="text" class="form-control"  v-model="creditCommissionRate" placeholder="请输入需要修改的占成" aria-describedby="basic-addon2">
+                <span class="input-group-addon">占成%</span>
+            </div>
+            <div class="input-group" style="margin-top: 10px">
+                <label class="label label-danger"  v-if="userRole===0">群主</label>
+                <label class="label label-success" v-if="userRole===1">管理员</label>
+                <label class="label label-success" v-if="userRole===10">组长</label>
+                <label class="label label-success" v-if="userRole===20">拉手</label>
+                <label class="label label-success" v-if="userRole===2">普通成员</label>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="height: 300px;margin-top: 30px">
+        <div class="col-sm-2">
+        <div class="input-group">
+            <button type="button" class="btn btn-info" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @click="seach()">
+                查看
+            </button>
+        </div>
+        </div>
+        <div class="col-sm-2">
+        <div class="input-group">
+            <button type="button" class="btn btn-success" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @click="up_shares()">
+                保存
+            </button>
+        </div>
+        </div>
+        </div>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#up_shares',
+        data: {
+            groupId: '',
+            UserId: '',
+            creditCommissionRate: '',
+            userRole: '',
+
+        },
+        created () {
+
+        },
+        methods: {
+            seach () {
+                let vm = this;
+                let UserId = vm.UserId;
+                let groupId = vm.groupId;
+                if(!UserId || UserId<1){
+                    layer.msg('请输入用户id');
+                    return;
+                }
+                if(!groupId || groupId<1){
+                    layer.msg('请输入亲友圈id');
+                    return;
+                }
+                axios
+                    .post("/api/qyq/get_creditCommissionRate",{userId:UserId,groupId: groupId})
+                    .then(function (response) {
+                        if(response.data.code==1) {
+                            vm.creditCommissionRate = response.data.creditCommissionRate;
+                            vm.userRole = response.data.userRole;
+                        }else{
+                            layer.msg(response.data.message);
+                        }
+
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+
+            },
+            up_shares () {
+                let vm = this;
+                let UserId = vm.UserId;
+                let groupId = vm.groupId;
+                let creditCommissionRate = vm.creditCommissionRate;
+                let userRole = vm.userRole;
+                if(userRole!==10 && userRole !==20) {
+                    layer.msg("用户不是组长和拉手 不能修改占成");
+                    return;
+                }
+                layer.confirm('您确定要修改占成吗？', {
+                    btn: ['确定','取消'] //按钮
+                }, function() {
+                    axios
+                        .post("/api/qyq/up_creditCommissionRate",{userId:UserId,groupId: groupId,creditCommissionRate:creditCommissionRate})
+                        .then(function (response) {
+                            if(response.data.code==1) {
+                                vm.seach();
+                                layer.msg(response.data.message,{icon:1,time:2000},function (){
+                                    layer.closeAll('dialog');
+                                });
+                            }else{
+                                layer.msg(response.data.message);
+                            }
+
+                        })
+                        .catch(function (error) { // 请求失败处理
+                            console.log(error);
+                        });
+                })
+
+
+            },
+        },
+        mounted:function(){
+        }
+    })
+</script>
+</body>
+</html>

@@ -138,6 +138,7 @@
             <div class="hr-line-dashed"></div>
             <div class="form-group">
                 <button class="col-sm-2 btn btn-primary" style="background: #0a7963" @click="kc_card()">扣除钻石</button>
+                <button class="col-sm-2 btn btn-info" style="margin-left: 10px;background: #0e8e90" @click="kc_freecard()">扣除免费钻石</button>
                 <button class="col-sm-2 btn btn-info" style="margin-left: 10px;background: #0e8e90" @click="qc_card()">清除免费钻石</button>
             </div>
         </div>
@@ -330,6 +331,53 @@
                                 if (response.data.code == 0) {
                                     layer.msg(response.data.message);
                                     lock = true;
+                                    vm.seach();
+                                    vm.get_pt_cards();
+                                } else {
+                                    layer.msg(response.data.message);
+                                }
+                            })
+                            .catch(function (error) { // 请求失败处理
+                                console.log(error);
+                            });
+                    }
+                })
+            },
+            kc_freecard() {
+                let vm = this;
+                var lock      = false;
+                let card      = parseInt(vm.cards);
+                let freeCards = parseInt(vm.freeCards);
+                let kc_number = parseInt(vm.kc_number);
+                let userId    = vm.userId;
+
+                if(freeCards < 1) {
+                    layer.msg("余额不足");
+                    return;
+                }
+                if( kc_number > freeCards ){
+                    layer.msg("可扣余额不足！请核对");
+                    return;
+                }
+                if(!kc_number || kc_number<1){
+                    layer.msg("请输入需要扣除的钻石数量！");
+                    return;
+                }
+                if(!userId) {
+                    layer.msg("请输入需要充值的用户id！");
+                    return;
+                }
+                let kc_numbers = -kc_number;
+                layer.confirm('您确定要扣除用户免费钻石吗？', {
+                    btn: ['确定','取消'] //按钮
+                }, function() {
+                    if(!lock) {
+                        lock = true;
+                        axios
+                            .post('/api/journal/kc_cards', {userId: userId, cards: 0, freeCards: kc_numbers})
+                            .then(function (response) {
+                                if (response.data.code == 0) {
+                                    layer.msg("扣除成功");
                                     vm.seach();
                                     vm.get_pt_cards();
                                 } else {
