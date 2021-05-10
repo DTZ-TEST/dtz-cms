@@ -95,6 +95,21 @@ class JournalController extends RestBaseController
             if($res_info['code']===0){
                 $cardss = $res_info['retCard'];
                 if($cardss===0){
+                    $retFreeCard = $res_info['retFreeCard'];
+                    if($retFreeCard!=0){
+                        $inser_parm['freeCards']  = $retFreeCard;
+                        $retFreeCard = abs($retFreeCard);
+                        $t_cards =  $t_card + abs($retFreeCard);
+                        $inser_parm['status']   = 1;
+                        $inser_parm['p_cards'] = $t_cards;
+                        $res2 = db('cards_stock')->where('id',1)->update(['stock'=>$t_cards]);
+                        $res = db('cards_info')->insert($inser_parm);
+                        $res_infos = json_encode($res_info);
+                        apilog($mid."扣除面免费钻石成功".$res_infos);
+                        if(!empty($res) && !empty($res2)){
+                            return json($res_info);
+                        }
+                    }
                     $res_infos = json_encode($res_info);
                     apilog($mid."扣除钻石失败".$res_infos);
                     $res_info['message'] = "扣除失败";
