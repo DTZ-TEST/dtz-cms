@@ -1,4 +1,11 @@
 <include file="public@headers" />
+<style>
+    td {
+        font-weight: bold;
+        color: #0e6f5c;
+        text-align: center;
+    }
+</style>
 <body class="gray-bg">
 <div class="wrapper wrapper-content animated fadeInRight">
     <!-- Panel Other -->
@@ -41,24 +48,30 @@
                         <thead>
                         <tr class="long-tr">
                             <th>日期</th>
+                            <th>总用户数</th>
                             <th>日活跃</th>
                             <th>日新增</th>
                             <th>初级场</th>
                             <th>中级场</th>
                             <th>高级场</th>
                             <th>总场次</th>
+                            <th>操作</th>
                         </tr>
                         </thead>
                         <script id="list-template" type="text/html">
                             {{# for(var i=0;i<d.length;i++){  }}
                             <tr class="long-td">
                                 <td>{{d[i].dateTime}}</td>
-                                <td>{{d[i].dau}}</td>
-                                <td>{{d[i].addUser}}</td>
-                                <td>{{d[i].cjTotal}}</td>
-                                <td>{{d[i].zjTotal}}</td>
-                                <td>{{d[i].gjTotal}}</td>
-                                <td>{{d[i].totalNums}}</td>
+                                <td>{{d[i].totalUser}}人</td>
+                                <td>{{d[i].dau}}人</td>
+                                <td>{{d[i].addUser}}人</td>
+                                <td>{{d[i].cjTotal + d[i].cjPdkTotal + d[i].cjphzTotal  + d[i].cjDdzTotal}}局</td>
+                                <td>{{d[i].zjTotal + d[i].zjPdkTotal + d[i].zjphzTotal + d[i].zjDdzTotal}}局</td>
+                                <td>{{d[i].gjTotal + d[i].gjPdkTotal + d[i].gjphzTotal + d[i].gjDdzTotal}}局</td>
+                                <td>{{d[i].totalNums + d[i].totalPdkNums + d[i].totalphzNums + d[i].totalDdzNums}}局</td>
+                                <td><button class="btn btn-success" onclick="detail({{d[i].cjTotal}},{{d[i].cjPdkTotal}},{{d[i].cjphzTotal}},{{d[i].cjDdzTotal}},
+                                {{d[i].zjTotal}},{{d[i].zjPdkTotal}},{{d[i].zjphzTotal}},{{d[i].zjDdzTotal}},{{d[i].gjTotal}},{{d[i].gjPdkTotal}},{{d[i].gjphzTotal}} ,{{d[i].gjDdzTotal}}
+                                )">查看详情</button></td>
                             </tr>
                             {{# } }}
                         </script>
@@ -125,6 +138,23 @@
         theme:{bgcolor:"#1ab394",pnColor:"#00CCFF"},
         format: "YYYYMMDD"
     });
+
+    function detail(c,c1,c2,c3,z,z1,z2,z3,g,g1,g2,g3) {
+        layer.open({
+            type: 1,
+            skin: 'layui-layer-demo', //样式类名
+            area: ['590px', '350px'],
+            closeBtn: 0, //不显示关闭按钮
+            anim: 2,
+            shadeClose: true, //开启遮罩关闭
+            content: '<table class="layui-table" lay-even="" lay-skin="row">' +
+                '<thead><tr><th>打筒子初级场:<label class="label label-danger">'+c+'</label></th> <th>打筒子中级级场:<label class="label label-info">'+z+'</label></th> <th>打筒子高级场:<label class="label label-success">'+g+'</label></th></tr><thead>' +
+                '<thead><tr><th>跑的快初级场:<label class="label label-danger">'+c1+'</label></th> <th>跑的快中级级场:<label class="label label-info">'+z1+'</label></th> <th>跑的快高级场:<label class="label label-success">'+g1+'</label></th></tr><thead>' +
+                '<thead><tr><th>跑胡子初级场:<label class="label label-danger">'+c2+'</label></th> <th>跑胡子中级级场:<label class="label label-info">'+z2+'</label></th> <th>跑胡子高级场:<label class="label label-success">'+g2+'</label></th></tr><thead>' +
+                '<thead><tr><th>斗地主初级场:<label class="label label-danger">'+c3+'</label></th> <th>斗地主中级级场:<label class="label label-info">'+z3+'</label></th> <th>斗地主高级场:<label class="label label-success">'+g3+'</label></th></tr><thead>' +
+                '</table> '
+        });
+    }
 
 </script>
 </body>

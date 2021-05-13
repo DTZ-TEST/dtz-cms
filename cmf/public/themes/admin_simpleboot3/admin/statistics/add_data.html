@@ -10,8 +10,8 @@
         <div class="layui-col-md12">
             <div class="layui-card">
                 <div class="layui-card-header">
-                    <div class="col-sm-2" style="font-weight: bold;color: red"> 生成统计数据</div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-1" style="font-weight: bold;color: red"> 生成统计数据</div>
+                    <div class="col-sm-2">
                                 <span class="input-group-btn" id="dateShowBtn" style="height: 50px;">
                                     <input type="text" name="start_time" id="dateSelectorTwo" lay-verify="date" placeholder="开始时间" autocomplete="off"
                                            class="form-control jeinput" value="{$start_time}">
@@ -19,6 +19,8 @@
                     </div>
                     <button class="layui-btn" @click="add_ptdata()">生成平台统计数据</button>
                     <button class="layui-btn" @click="add_qyqdata()">生成亲友圈统计数据</button>
+                    <button class="btn btn-warning" @click="add_gold_commom_data()">生成金币场局数统计数据</button>
+                    <button class="btn btn-warning" @click="add_gold_card_data()">生成金币场统计数据</button>
                 </div>
                 <div class="layui-card-body">
                     <div id="containertrend" style="border: 1px solid #e2e2e2;height: 600px">
@@ -77,11 +79,51 @@
                     });
             },
             add_qyqdata() {
-              let vm = this;
-               vm.is_ok=true;
+                let vm = this;
+                vm.is_ok=true;
                 let date = $('#dateSelectorTwo').val();
                 axios
                     .post('/api/statistics/get_qyq_datad',{date:date})
+                    .then(function (response) {
+                        if(response.data.code==1) {
+                            vm.is_ok = false;
+                            layer.msg('生成成功');
+                        }else{
+                            layer.msg(response.data.message);
+                            vm.is_ok = false;
+                        }
+                        console.log(response);
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            add_gold_commom_data() {
+                let vm = this;
+                vm.is_ok=true;
+                let date = $('#dateSelectorTwo').val();
+                axios
+                    .post('/api/statistics/get_gold_commom_data',{date:date})
+                    .then(function (response) {
+                        if(response.data.code==1) {
+                            vm.is_ok = false;
+                            layer.msg('生成成功');
+                        }else{
+                            layer.msg(response.data.message);
+                            vm.is_ok = false;
+                        }
+                        console.log(response);
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            add_gold_card_data() {
+                let vm = this;
+                vm.is_ok=true;
+                let date = $('#dateSelectorTwo').val();
+                axios
+                    .post('/api/statistics/get_gold_card_data',{date:date})
                     .then(function (response) {
                         if(response.data.code==1) {
                             vm.is_ok = false;
