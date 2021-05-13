@@ -9,8 +9,10 @@
 
 namespace app\api\controller;
 
+use app\admin\model\GoldCardStatisticsModel;
 use cmf\controller\RestBaseController;
 use app\api\command\Crypt;
+use app\admin\model\GoldCommomStatisticsModel;
 /**
  * Class IndexController
  * @package apis\api\controller
@@ -424,6 +426,247 @@ class StatisticsController extends RestBaseController
         $card_xh = db('statistics_pt')->where($wheres)->column('card_xh');
         $card_sy = db('statistics_pt')->where($wheres)->column('card_sy');
         return json(["code"=>1,"tdate"=>$tdate,"xzdata"=>$zcdata,"hydata"=>$hydata,"djdata"=>$djdata,"zjs"=>$zjs,"xjs"=>$xjs,"card_xh"=>$card_xh,"card_sy"=>$card_sy]);
+    }
+   /***
+    * 统计金币场次
+   */
+    public function get_gold_commom_data() {
+        $g_c_mmodel = new GoldCommomStatisticsModel();
+        $datex = $this->request->param('date');
+        if(empty($datex)){
+            $day = date('Y-m-d',strtotime(date("Y-m-d H:i:s",strtotime('-1 day'))));
+        }else{
+            $day = $datex;
+        }
+        $s_time = $day." 00:00:00";
+        $e_time = $day." 23:59:59";
+        $days = date('Ymd',strtotime($day));
+        $info = $g_c_mmodel->get_timebydata($days);
+        if(!empty($info)){
+            return json(['code'=>-1,'message'=>$datex."日期已存在，无需重复生成"]);
+        }
+        $where_t = "regTime>='$s_time' and regTime<='$e_time'";
+        $where_ts = "lastLoginTime>='$s_time' and lastLoginTime<='$e_time'";
+        $where_total = "createdTime >='$s_time' and createdTime <= '$e_time'";
+        $where_total_dtz_cj = "modeId = 1154 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_dtz_zj = "modeId = 1155 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_dtz_gj = "modeId = 1157 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_pdk_cj = "modeId = 161 and  (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_pdk_zj = "modeId = 162 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_pdk_gj = "modeId = 163 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_pfz_cj = "modeId = 331 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_pfz_zj = "modeId = 332 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_pfz_gj = "modeId = 333 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_ddz_cj = "modeId = 911 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_ddz_zj = "modeId = 912 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_ddz_gj = "modeId = 913 and (serverId = 1 or serverId = 2) and currentState=2";
+        $totalUser =  db('t_gold_user','mysql1')->count();//总用户数
+        $dau     =    db('t_gold_user','mysql1')->where($where_t)->count();//dau
+        $addUser =    db('t_gold_user','mysql1')->group('userId')->where($where_ts)->count();//当日新增用户数
+        $cjTotal =    db('t_gold_room','mysql1')->where($where_total)->where($where_total_dtz_cj)->count();//打筒子初级局数
+        $zjTotal =    db('t_gold_room','mysql1')->where($where_total)->where($where_total_dtz_zj)->count();//打筒子中级局数
+        $gjTotal =    db('t_gold_room','mysql1')->where($where_total)->where($where_total_dtz_gj)->count();//打筒子高级局数
+        $totalNums =  intval($cjTotal)+intval($zjTotal)+intval($gjTotal); //打筒子总局数
+        $cjPdkTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_pdk_cj)->count();//跑的快初级局数
+        $zjPdkTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_pdk_zj)->count();//跑的快中级局数
+        $gjPdkTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_pdk_gj)->count();//跑的快高级局数
+        $totalPdkNums = intval($cjPdkTotal)+intval($zjPdkTotal)+intval($gjPdkTotal);//跑的快总局数
+        $cjphzTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_pfz_cj)->count();//跑胡子初级局数
+        $zjphzTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_pfz_zj)->count();//跑胡子中级局数
+        $gjphzTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_pfz_gj)->count();//跑胡子高级局数
+        $totalphzNums =  intval($cjphzTotal)+intval($zjphzTotal)+intval($gjphzTotal);//跑胡子总局数
+
+        $cjDdzTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_ddz_cj)->count();//斗地主初级局数
+        $zjDdzTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_ddz_zj)->count();//斗地主中级局数
+        $gjDdzTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_ddz_gj)->count();//斗地主高级局数
+        $totalDdzNums =  intval($cjDdzTotal)+intval($zjDdzTotal)+intval($gjDdzTotal);//斗地主总局数
+        $twodaylc     =  $this->get_lc(1); //twodaylc
+        $threedaylc   =  $this->get_lc(2);
+        $fourdaylc    =  $this->get_lc(3);
+        $fivedaylc    =  $this->get_lc(4);
+        $sixdaylc     =  $this->get_lc(5);
+        $sevendaylc   =  $this->get_lc(6);
+        $fifteendaylc  =  $this->get_lc(14);
+        $monthdaylc   =  $this->get_lc(30);
+        $data = [
+            "totalUser"=>$totalUser,
+            "dau"=>$dau,
+            "addUser"=>$addUser,
+            "cjTotal"=>$cjTotal,
+            "zjTotal"=>$zjTotal,
+            "gjTotal"=>$gjTotal,
+            "totalNums"=>$totalNums,
+            "cjPdkTotal"=>$cjPdkTotal,
+            "zjPdkTotal"=>$zjPdkTotal,
+            "gjPdkTotal"=>$gjPdkTotal,
+            "totalPdkNums"=>$totalPdkNums,
+            "cjphzTotal"=>$cjphzTotal,
+            "zjphzTotal"=>$zjphzTotal,
+            "gjphzTotal"=>$gjphzTotal,
+            "totalphzNums"=>$totalphzNums,
+            "cjDdzTotal"=>$cjDdzTotal,
+            "zjDdzTotal"=>$zjDdzTotal,
+            "gjDdzTotal"=>$gjDdzTotal,
+            "totalDdzNums"=>$totalDdzNums,
+            "twodaylc"=>$twodaylc,
+            "threedaylc"=>$threedaylc,
+            "fourdaylc"=>$fourdaylc,
+            "fivedaylc"=>$fivedaylc,
+            "sixdaylc"=>$sixdaylc,
+            "sevendaylc"=>$sevendaylc,
+            "fifteendaylc"=>$fifteendaylc,
+            "monthdaylc"=>$monthdaylc,
+            "dateTime" =>date("Ymd",strtotime($day))
+        ];
+       $res = $g_c_mmodel ->insert($data);
+       if($res!==false) {
+           return json(['code'=>1,'data'=>$res,'message'=>'添加成功']);
+       }
+    }
+
+    /***
+     * 统计金币场次
+     */
+    public function get_gold_card_data() {
+        $g_c_mmodel = new GoldCardStatisticsModel();
+        $datex = $this->request->param('date');
+        if(empty($datex)){
+            $day = date('Y-m-d',strtotime(date("Y-m-d H:i:s",strtotime('-1 day'))));
+        }else{
+            $day = $datex;
+        }
+        $s_time = $day." 00:00:00";
+        $e_time = $day." 23:59:59";
+        $days = date('Ymd',strtotime($day));
+        $info = $g_c_mmodel->get_timebydata($days);
+        if(!empty($info)){
+            return json(['code'=>-1,'message'=>$datex."日期已存在，无需重复生成"]);
+        }
+        $where_total = "createdTime >='$s_time' and createdTime <= '$e_time'";
+        $where_total_dtz_cj = "modeId = 1154 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_dtz_zj = "modeId = 1155 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_dtz_gj = "modeId = 1157 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_pdk_cj = "modeId = 161 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_pdk_zj = "modeId = 162 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_pdk_gj = "modeId = 163 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_pfz_cj = "modeId = 331 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_pfz_zj = "modeId = 332 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_pfz_gj = "modeId = 333 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_ddz_cj = "modeId = 911 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_ddz_zj = "modeId = 912 and (serverId = 1 or serverId = 2) and currentState=2";
+        $where_total_ddz_gj = "modeId = 913 and (serverId = 1 or serverId = 2) and currentState=2";
+
+        $card_s_where =  " itemType=0 and createdTime >= '$s_time' and createdTime < '$e_time'";
+        $card_ss_where =  " itemType=1 and createdTime >= '$s_time' and createdTime < '$e_time'";
+
+        $cjTotal =    db('t_gold_room','mysql1')->where($where_total)->where($where_total_dtz_cj)->count();//打筒子初级局数
+        $zjTotal =    db('t_gold_room','mysql1')->where($where_total)->where($where_total_dtz_zj)->count();//打筒子中级局数
+        $gjTotal =    db('t_gold_room','mysql1')->where($where_total)->where($where_total_dtz_gj)->count();//打筒子高级局数
+        $CjGold  = $cjTotal * 500*3;
+        $ZjGold  = $zjTotal * 2500*3;
+        $GjGold  = $gjTotal * 6000*3;
+        $TotalService = intval($CjGold) + intval($ZjGold) + intval($GjGold);
+        $cjPdkTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_pdk_cj)->count();//跑的快初级局数
+        $zjPdkTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_pdk_zj)->count();//跑的快中级局数
+        $gjPdkTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_pdk_gj)->count();//跑的快高级局数
+        $CjPdkGold  = $cjPdkTotal * 400*3;
+        $ZjPdkGold  = $zjPdkTotal * 800*3;
+        $GjPdkGold  = $gjPdkTotal * 1500*3;
+        $TotalPdkService = intval($CjPdkGold) + intval($ZjPdkGold) + intval($GjPdkGold);
+
+        $cjphzTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_pfz_cj)->count();//跑胡子初级局数
+        $zjphzTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_pfz_zj)->count();//跑胡子中级局数
+        $gjphzTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_pfz_gj)->count();//跑胡子高级局数
+        $CjphzGold  = $cjphzTotal * 400*3;
+        $ZjphzGold  = $zjphzTotal * 900*3;
+        $GjphzGold  = $gjphzTotal * 2000*3;
+        $TotalphzService = intval($CjphzGold) + intval($ZjphzGold) + intval($GjphzGold);
+
+        $cjddzTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_ddz_cj)->count();//斗地主初级局数
+        $zjddzTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_ddz_zj)->count();//斗地主中级局数
+        $gjddzTotal =  db('t_gold_room','mysql1')->where($where_total)->where($where_total_ddz_gj)->count();//斗地主高级局数
+        $CjddzGold  = $cjddzTotal * 500*3;
+        $ZjddzGold  = $zjddzTotal * 1500*3;
+        $GjddzGold  = $gjddzTotal * 3000*3;
+        $TotalddzService = intval($CjddzGold) + intval($ZjddzGold) + intval($GjddzGold);
+
+        $card1 = db('t_item_exchange','mysql1')->where($card_ss_where)->sum('itemCount');//回兑钻石
+        $gold1 = db('t_item_exchange','mysql1')->where($card_s_where)->sum('itemCount');  //兑换积分
+//        $ce = $card1 - $card2;
+        $exchargeCard = $card1;
+        $exchargeGold = $gold1;
+        $totalGold = db('t_gold_user','mysql1')->sum('freeGold');
+        $totalGolds = db('t_gold_user','mysql1')->sum('Gold');
+        $data = [
+            "dateTime" =>date("Ymd",strtotime($day)),
+            "totalGold" =>$totalGold + $totalGolds ,
+            "cjGold" =>$CjGold,
+            "zjGold" =>$ZjGold,
+            "gjGold" =>$GjGold,
+            "exchargeGold" =>$exchargeGold,
+            "exchargeCard" =>$exchargeCard,
+            "totalService" =>$TotalService,
+//            "cardce" =>$ce,
+            "cjPdkGold" =>$CjPdkGold,
+            "zjPdkGold" =>$ZjPdkGold,
+            "gjPdkGold" =>$GjPdkGold,
+            "totalPdkService" =>$TotalPdkService,
+            "cjphzGold" =>$CjphzGold,
+            "zjphzGold" =>$ZjphzGold,
+            "gjphzGold" =>$GjphzGold,
+            "totalphzService" =>$TotalphzService,
+            "cjddzGold" =>$CjddzGold,
+            "zjddzGold" =>$ZjddzGold,
+            "gjddzGold" =>$GjddzGold,
+            "totalddzService" =>$TotalddzService
+        ];
+        $res = $g_c_mmodel ->insert($data);
+        if($res!==false) {
+            return json(['code'=>1,'data'=>$res,'message'=>'添加成功']);
+        }
+    }
+    public function get_lc($number) {
+        $times = date('Y-m-d H:i:s');
+        $lc_1 = date('Y-m-d',strtotime(date("Y-m-d H:i:s",strtotime('-1 day'))));
+        $lc_2 = date('Y-m-d',strtotime(date("Y-m-d H:i:s",strtotime('-2 day'))));
+        $lc_3 = date('Y-m-d',strtotime(date("Y-m-d H:i:s",strtotime('-3 day'))));
+        $lc_4 = date('Y-m-d',strtotime(date("Y-m-d H:i:s",strtotime('-4 day'))));
+        $lc_5 = date('Y-m-d',strtotime(date("Y-m-d H:i:s",strtotime('-5 day'))));
+        $lc_6 = date('Y-m-d',strtotime(date("Y-m-d H:i:s",strtotime('-6 day'))));
+        $lc_7 = date('Y-m-d',strtotime(date("Y-m-d H:i:s",strtotime('-7 day'))));
+        $lc_14 = date('Y-m-d',strtotime(date("Y-m-d H:i:s",strtotime('-14 day'))));
+        $lc_30 = date('Y-m-d',strtotime(date("Y-m-d H:i:s",strtotime('-30 day'))));
+        $where = " 1";
+        switch ($number) {
+            case 1:
+                $where .= " and regTime>='$lc_1' and regTime<'$times' and lastLoginTime>='$lc_1' and lastLoginTime<'$lc_1'";
+                break;
+            case 2:
+                $where .= " and regTime>='$lc_2' and regTime<'$times' and lastLoginTime>='$lc_2' and lastLoginTime<'$lc_2'";
+                break;
+            case 3:
+                $where .= " and regTime>='$lc_3' and regTime<'$times' and lastLoginTime>='$lc_3' and lastLoginTime<'$lc_3'";
+                break;
+            case 4:
+                $where .= " and regTime>='$lc_4' and regTime<'$times' and lastLoginTime>='$lc_4' and lastLoginTime<'$lc_4'";
+                break;
+            case 5:
+                $where .= " and regTime>='$lc_5' and regTime<'$times' and lastLoginTime>='$lc_5' and lastLoginTime<'$lc_5'";
+                break;
+            case 6:
+                $where .= " and regTime>='$lc_6' and regTime<'$times' and lastLoginTime>='$lc_6' and lastLoginTime<'$lc_6'";
+                break;
+            case 7:
+                $where .= " and regTime>='$lc_7' and regTime<'$times' and lastLoginTime>='$lc_7' and lastLoginTime<'$lc_7'";
+                break;
+            case 14:
+                $where .= " and regTime>='$lc_14' and regTime<'$times' and lastLoginTime>='$lc_14' and lastLoginTime<'$lc_14'";
+                break;
+            case 30:
+                $where .= " and regTime>='$lc_30' and regTime<'$times' and lastLoginTime>='$lc_30' and lastLoginTime<'$lc_30'";
+                break;
+        }
+        return db('t_gold_user','mysql1')->where($where)->count();
     }
 
 }
