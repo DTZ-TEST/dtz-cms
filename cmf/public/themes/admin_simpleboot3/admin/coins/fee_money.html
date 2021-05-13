@@ -48,7 +48,7 @@
                         <thead>
                         <tr class="long-tr">
                             <th>日期</th>
-                            <th>平台砖石剩余</th>
+                            <th>平台金币剩余</th>
                             <th>兑换金币数</th>
                             <th>兑换钻石数</th>
                             <th>初级场手续费</th>
@@ -65,10 +65,10 @@
                                 <td>{{d[i].totalGold}}</td>
                                 <td>{{d[i].exchargeGold}}</td>
                                 <td>{{d[i].exchargeCard}}</td>
-                                <td>{{d[i].cjGold + d[i].cjPdkGold + d[i].cjphzGold  + d[i].cjddzGold}}</td>
-                                <td>{{d[i].zjGold + d[i].zjPdkGold + d[i].zjphzGold + d[i].zjddzGold}}</td>
-                                <td>{{d[i].gjGold + d[i].gjPdkGold + d[i].gjphzGold + d[i].gjddzGold}}</td>
-                                <td>{{d[i].totalService + d[i].totalPdkService + d[i].totalphzService + d[i].totalddzService}}</td>
+                                <td>{{parseInt(d[i].cjGold) + parseInt(d[i].cjPdkGold) + parseInt(d[i].cjphzGold)  + parseInt(d[i].cjddzGold)}}</td>
+                                <td>{{parseInt(d[i].zjGold) + parseInt(d[i].zjPdkGold) + parseInt(d[i].zjphzGold) + parseInt(d[i].zjddzGold)}}</td>
+                                <td>{{parseInt(d[i].gjGold) + parseInt(d[i].gjPdkGold) + parseInt(d[i].gjphzGold) + parseInt(d[i].gjddzGold)}}</td>
+                                <td>{{parseInt(d[i].totalService) + parseInt(d[i].totalPdkService) + parseInt(d[i].totalphzService) + parseInt(d[i].totalddzService)}}</td>
                                 <td><button class="btn btn-success" onclick="detail({{d[i].cjGold}},{{d[i].cjPdkGold}},{{d[i].cjphzGold}},{{d[i].cjddzGold}},
                                 {{d[i].zjGold}},{{d[i].zjPdkGold}},{{d[i].zjphzGold}},{{d[i].zjddzGold}},{{d[i].gjGold}},{{d[i].gjPdkGold}},{{d[i].gjphzGold}} ,{{d[i].gjddzGold}}
                                 )">查看详情</button></td>
