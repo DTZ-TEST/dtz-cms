@@ -1,5 +1,6 @@
 <?php
 return array (
+  'ADMIN_COINS_FEE_MONEY' => '娱乐场手续费',
   'ADMIN_COINS_INDEX' => '金币场数',
   'ADMIN_COINS_LISTS' => '金币场次统计',
   'ADMIN_CONFIG_IP_CONFIG' => '域名管理',
@@ -54,8 +55,10 @@ return array (
   'ADMIN_PLUGIN_UNINSTALL' => '卸载插件',
   'ADMIN_PLUGIN_UPDATE' => '插件更新',
   'ADMIN_QYQ_#' => '亲友圈管理',
+  'ADMIN_QYQ_ADD_QYQ' => '添加亲友圈',
   'ADMIN_QYQ_QYQ_DETAIL' => '亲友圈资料',
   'ADMIN_QYQ_UP_BIND' => '修改绑定',
+  'ADMIN_QYQ_UP_SHARES' => '修改成员占成',
   'ADMIN_RBAC_AUTHORIZE' => '设置角色权限',
   'ADMIN_RBAC_AUTHORIZEPOST' => '角色授权提交',
   'ADMIN_RBAC_INDEX' => '角色管理',
