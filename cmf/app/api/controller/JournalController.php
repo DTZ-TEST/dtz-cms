@@ -46,22 +46,28 @@ class JournalController extends RestBaseController
             $info = cmf_api_request($apiurl,$parm);
             $res_info = decrypt_info($info);
             if($res_info['code']===0){
-                $inser_parm['status']   = 1;
-//                Db::startTrans();
-                $t_cards = $t_card - $sum_card;
-                $inser_parm['p_cards'] = $t_cards;
-                $res2 = db('cards_stock')->where('id',1)->update(['stock'=>$t_cards]);
-                $res = db('cards_info')->insert($inser_parm);
-                $res_infos = json_encode($res_info);
-                apilog($mid."添加用户钻石成功".$res_infos);
-                if(!empty($res) && !empty($res2)){
-//                    Db::commit();
-                    return json($res_info);
-                }else{
-//                    Db::rollback();
+                try{
+                    $inser_parm['status']   = 1;
+                    $t_cards = $t_card - $sum_card;
+                    $inser_parm['p_cards'] = $t_cards;
+                    $res = db('cards_info')->insert($inser_parm);
+                    if(!empty($res)){
+                        $res2 = db('cards_stock')->where('id',1)->update(['stock'=>$t_cards]);
+                        $res_infos = json_encode($res_info);
+                        if(!empty($res2)){
+                            apilog($mid."添加用户钻石成功".$res_infos);
+                            $res_info['message']="成功";
+                            return json($res_info);
+                        }else{
+                        }
+                    }else{
+                        return json($res_info);
+                    }
+                } catch (\Exception $e) {
+                    // 回滚事务
+                    Db::rollback();
                 }
-            }else{
-                return json($res_info);
+
             }
         }
     }
@@ -102,12 +108,14 @@ class JournalController extends RestBaseController
                         $t_cards =  $t_card + abs($retFreeCard);
                         $inser_parm['status']   = 1;
                         $inser_parm['p_cards'] = $t_cards;
-                        $res2 = db('cards_stock')->where('id',1)->update(['stock'=>$t_cards]);
                         $res = db('cards_info')->insert($inser_parm);
-                        $res_infos = json_encode($res_info);
-                        apilog($mid."扣除面免费钻石成功".$res_infos);
-                        if(!empty($res) && !empty($res2)){
-                            return json($res_info);
+                        if(!empty($res)){
+                            $res2 = db('cards_stock')->where('id',1)->update(['stock'=>$t_cards]);
+                            $res_infos = json_encode($res_info);
+                            if(!empty($res2)){
+                                apilog($mid."扣除面免费钻石成功".$res_infos);
+                                return json($res_info);
+                            }
                         }
                     }
                     $res_infos = json_encode($res_info);
@@ -120,14 +128,17 @@ class JournalController extends RestBaseController
                     $t_cards =  $t_card + abs($cardss);
                     $inser_parm['status']   = 1;
                     $inser_parm['p_cards'] = $t_cards;
-                    $res2 = db('cards_stock')->where('id',1)->update(['stock'=>$t_cards]);
                     $res = db('cards_info')->insert($inser_parm);
-                    $res_infos = json_encode($res_info);
-                    apilog($mid."扣除钻石成功".$res_infos);
-                    if(!empty($res) && !empty($res2)){
-                        return json($res_info);
-                    }else{
+                    if(!empty($res)){
+                        $res2 = db('cards_stock')->where('id',1)->update(['stock'=>$t_cards]);
+                        $res_infos = json_encode($res_info);
+                        if(!empty($res2)){
+                            apilog($mid."扣除钻石成功".$res_infos);
+                            return json($res_info);
+                        }else{
+                        }
                     }
+
                 }
             }else{
                 return json($res_info);
@@ -163,13 +174,15 @@ class JournalController extends RestBaseController
                 $inser_parm['freeCards'] = $res_info['retFreeCard'];
                 $t_cards =  $t_card + $cardss;
                 $inser_parm['p_cards'] = $t_cards;
-                $res2 = db('cards_stock')->where('id',1)->update(['stock'=>$t_cards]);
                 $res = db('cards_info')->insert($inser_parm);
-                $res_infos = json_encode($res_info);
-                apilog($mid."清除钻石成功".$res_infos);
-                if(!empty($res) && !empty($res2)){
-                    return json($res_info);
-                }else{
+                if(!empty($res)){
+                    $res2 = db('cards_stock')->where('id',1)->update(['stock'=>$t_cards]);
+                    $res_infos = json_encode($res_info);
+                    if(!empty($res2)){
+                        apilog($mid."清除钻石成功".$res_infos);
+                        return json($res_info);
+                    }else{
+                    }
                 }
             }else{
                 return json($res_info);
