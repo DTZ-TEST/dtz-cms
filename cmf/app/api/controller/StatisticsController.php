@@ -446,7 +446,7 @@ class StatisticsController extends RestBaseController
             return json(['code'=>-1,'message'=>$datex."日期已存在，无需重复生成"]);
         }
         $where_t = "regTime>='$s_time' and regTime<='$e_time'";
-        $where_ts = "lastLoginTime>='$s_time' and lastLoginTime<='$e_time'";
+        $where_ts = "createdTime>='$s_time' and createdTime<='$e_time'";
         $where_total = "createdTime >='$s_time' and createdTime <= '$e_time'";
         $where_total_dtz_cj = "modeId = 1154 and (serverId = 1 or serverId = 2) and currentState=2";
         $where_total_dtz_zj = "modeId = 1155 and (serverId = 1 or serverId = 2) and currentState=2";
@@ -461,8 +461,8 @@ class StatisticsController extends RestBaseController
         $where_total_ddz_zj = "modeId = 912 and (serverId = 1 or serverId = 2) and currentState=2";
         $where_total_ddz_gj = "modeId = 913 and (serverId = 1 or serverId = 2) and currentState=2";
         $totalUser =  db('t_gold_user','mysql1')->count();//总用户数
-        $dau     =    db('t_gold_user','mysql1')->where($where_t)->count();//dau
-        $addUser =    db('t_gold_user','mysql1')->group('userId')->where($where_ts)->count();//当日新增用户数
+        $dau     =    db('t_gold_room_user','mysql1')->group('userId')->where($where_ts)->count();//dau
+        $addUser =    db('t_gold_user','mysql1')->group('userId')->where($where_t)->count();//当日新增用户数
         $cjTotal =    db('t_gold_room','mysql1')->where($where_total)->where($where_total_dtz_cj)->count();//打筒子初级局数
         $zjTotal =    db('t_gold_room','mysql1')->where($where_total)->where($where_total_dtz_zj)->count();//打筒子中级局数
         $gjTotal =    db('t_gold_room','mysql1')->where($where_total)->where($where_total_dtz_gj)->count();//打筒子高级局数
