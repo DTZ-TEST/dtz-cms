@@ -1,8 +1,6 @@
 <include file="public@headers" />
 <style>
     td {
-        font-weight: bold;
-        color: #0e6f5c;
         text-align: center;
     }
 </style>
@@ -62,13 +60,13 @@
                             {{# for(var i=0;i<d.length;i++){  }}
                             <tr class="long-td">
                                 <td>{{d[i].dateTime}}</td>
-                                <td>{{d[i].totalUser}}人</td>
-                                <td>{{d[i].dau}}人</td>
-                                <td>{{d[i].addUser}}人</td>
-                                <td>{{parseInt(d[i].cjTotal) + parseInt(d[i].cjPdkTotal) + parseInt(d[i].cjphzTotal)  + parseInt(d[i].cjDdzTotal)}}局</td>
-                                <td>{{parseInt(d[i].zjTotal) + parseInt(d[i].zjPdkTotal) + parseInt(d[i].zjphzTotal) + parseInt(d[i].zjDdzTotal)}}局</td>
-                                <td>{{parseInt(d[i].gjTotal) + parseInt(d[i].gjPdkTotal) + parseInt(d[i].gjphzTotal) + parseInt(d[i].gjDdzTotal)}}局</td>
-                                <td>{{parseInt(d[i].totalNums) + parseInt(d[i].totalPdkNums) + parseInt(d[i].totalphzNums) + parseInt(d[i].totalDdzNums)}}局</td>
+                                <td>{{d[i].totalUser}}</td>
+                                <td>{{d[i].dau}}</td>
+                                <td>{{d[i].addUser}}</td>
+                                <td>{{parseInt(d[i].cjTotal) + parseInt(d[i].cjPdkTotal) + parseInt(d[i].cjphzTotal)  + parseInt(d[i].cjDdzTotal)}}</td>
+                                <td>{{parseInt(d[i].zjTotal) + parseInt(d[i].zjPdkTotal) + parseInt(d[i].zjphzTotal) + parseInt(d[i].zjDdzTotal)}}</td>
+                                <td>{{parseInt(d[i].gjTotal) + parseInt(d[i].gjPdkTotal) + parseInt(d[i].gjphzTotal) + parseInt(d[i].gjDdzTotal)}}</td>
+                                <td>{{parseInt(d[i].totalNums) + parseInt(d[i].totalPdkNums) + parseInt(d[i].totalphzNums) + parseInt(d[i].totalDdzNums)}}</td>
                                 <td><button class="btn btn-success" onclick="detail({{d[i].cjTotal}},{{d[i].cjPdkTotal}},{{d[i].cjphzTotal}},{{d[i].cjDdzTotal}},
                                 {{d[i].zjTotal}},{{d[i].zjPdkTotal}},{{d[i].zjphzTotal}},{{d[i].zjDdzTotal}},{{d[i].gjTotal}},{{d[i].gjPdkTotal}},{{d[i].gjphzTotal}} ,{{d[i].gjDdzTotal}}
                                 )">查看详情</button></td>

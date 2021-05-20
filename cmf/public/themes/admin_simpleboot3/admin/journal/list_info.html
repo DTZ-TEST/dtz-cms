@@ -325,12 +325,12 @@
                         btn: ['确定','取消'] //按钮
                     }, function() {
                     if(!lock) {
+                        lock = true;
                         axios
                             .post('/api/journal/kc_cards', {userId: userId, cards: kc_number, freeCards: 0,})
                             .then(function (response) {
                                 if (response.data.code == 0) {
                                     layer.msg(response.data.message);
-                                    lock = true;
                                     vm.seach();
                                     vm.get_pt_cards();
                                 } else {
@@ -407,12 +407,12 @@
                     btn: ['确定','取消'] //按钮
                 }, function() {
                     if(!lock) {
+                        lock = true;
                         axios
                             .post('/api/journal/qc_cards', {userId: userId, cards: 0, freeCards: kc_number,})
                             .then(function (response) {
                                 if (response.data.code == 0) {
                                     layer.msg(response.data.message);
-                                    lock = true;
                                     vm.seach();
                                     vm.get_pt_cards();
                                 } else {
