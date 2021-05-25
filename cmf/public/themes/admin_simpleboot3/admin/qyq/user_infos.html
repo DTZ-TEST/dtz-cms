@@ -1,0 +1,138 @@
+<include file="public@headers" />
+</head>
+<body>
+<div class="wrap js-check-wrap" id="user_infos">
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="input-group">
+                <input type="text" class="form-control" v-model="uid" placeholder="输入需要查询的玩家Id">
+                <span class="input-group-btn">
+                <button class="btn btn-default" type="button" @click="seach()">搜索</button>
+            </span>
+            </div><!-- /input-group -->
+        </div><!-- /.col-lg-6 -->
+    </div><!-- /.row -->
+
+    <div class="row" style="height: 100px;margin-top: 30px" v-for="item in userList">
+        <div class="col-sm-3">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">亲友圈id</h3>
+                </div>
+                <div class="panel-body">
+                {{item.groupId}}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">昵称</h3>
+                </div>
+                <div class="panel-body">
+                    {{item.userName}}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">身份</h3>
+                </div>
+                <div class="panel-body">
+                    <label v-if="item.userRole===0" class="label label-danger">群主</label>
+                    <label v-if="item.userRole==1" class="label label-success">管理员</label>
+                    <label v-if="item.userRole==10" class="label label-warning">组长</label>
+                    <label v-if="item.userRole==20" class="label label-info">拉手</label>
+                    <label v-if="item.userRole==2" class="label label-default">普通成员</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">上级id</h3>
+                </div>
+                <div class="panel-body">
+                    {{item.promoterIds}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#user_infos',
+        data: {
+            userList: [],
+            groupId: '',
+            userRole: "",
+            promoterIds: "",
+            uid: '',
+        },
+        created () {
+
+        },
+        methods: {
+            seach () {
+                let vm = this;
+                let uid = vm.uid;
+                axios
+                    .post('/api/qyq/get_user_infos',{userId: uid})
+                    .then(function (response) {
+                        console.log(response.data);
+                        if(response.data.code==1) {
+                            vm.userList = response.data.data;
+                        }else{
+                            alert(response.data.message);
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            add_qyq () {
+                let vm = this;
+                let groupName = vm.uid;
+                let userId = vm.uid;
+                layer.confirm('您确定要添加亲友圈吗？', {
+                    btn: ['确定','取消'] //按钮
+                }, function() {
+                    if(!userId) {
+                        layer.msg('用户信息不存在');
+                        return;
+                    }
+                    let groupId = vm.groupId;
+                    // if(!groupId ){
+                    //     layer.msg('亲友圈Id不能为空');
+                    //     return;
+                    // }
+                    let gameIds = '';
+                    axios
+                        .post("/api/qyq/add_qyq",{groupName: groupName,userId:userId,groupId:groupId,gameIds:gameIds})
+                        .then(function (response) {
+                            console.log(response);
+                            if(response.data.code==0) {
+                                layer.msg(response.data.message,{icon:1,time:2000},function (){
+                                    layer.closeAll('dialog');
+                                });
+                            }else{
+                                layer.msg(response.data.message);
+                            }
+
+                        })
+                        .catch(function (error) { // 请求失败处理
+                            console.log(error);
+                        });
+                })
+
+
+            },
+        },
+        mounted:function(){
+        }
+    })
+</script>
+</body>
+</html>

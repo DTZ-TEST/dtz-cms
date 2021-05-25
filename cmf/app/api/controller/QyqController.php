@@ -288,4 +288,26 @@ class QyqController extends RestBaseController
             return json(['code'=>1,'message'=>"修改成功"]);
         }
     }
+
+    /**
+     * 查看成员资料
+    */
+    public function get_user_infos () {
+        $userId   = input('userId');
+        $lists = db('t_group_user','mysql1')->where('userId',$userId)->select();
+        if(empty($lists)) {
+            return json(['code'=>-1,'message'=>"用户信息不存在"]);
+        }
+        if(!is_array($lists)){
+            $lists = $lists->toArray();
+            if(count($lists)==0){
+                return json(['code'=>-1,'message'=>"用户信息不存在"]);
+            }
+            foreach ($lists as $keys=>$v) {
+                $qz = db('t_group_user','mysql1')->where('groupId',$v['groupId'])->where('userRole',0)->value('userId');
+                $lists[$keys]['promoterIds'] = get_promoterIds($lists[$keys]['groupId'],$lists[$keys]['userRole'],$lists[$keys]['promoterLevel'],$qz,$lists[$keys]['userGroup'],$lists[$keys]['promoterId1'],$lists[$keys]['promoterId2'],$lists[$keys]['promoterId3'],$lists[$keys]['promoterId4']);
+            }
+            return json(['code'=>1,'message'=>"获取成功",'data'=>$lists]);
+        }
+    }
 }

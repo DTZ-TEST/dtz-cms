@@ -38,7 +38,7 @@ class QyqController extends AdminBaseController
             $gid = 666;
         }
         $count = db('t_group_user','mysql1')->where('groupId',$gid)->count();//计算总页面
-        $allpage = intval(ceil($count[0]['numbers'] / $limits));
+        $allpage = intval(ceil($count / $limits));
         $lists = db('t_group_user','mysql1')->where('groupId',$gid)->page($Nowpage, $limits)->select();
         $qz    = db('t_group_user','mysql1')->where('groupId',$gid)->where('userRole',0)->value('userId');
         if(!is_array($lists)){
@@ -173,5 +173,99 @@ class QyqController extends AdminBaseController
     public function up_shares() {
         return $this->fetch();
     }
+    /**
+     * 成员资料
+    */
+    public function user_infos () {
+        return $this->fetch();
+    }
+    /**
+     * 小组数据
+     */
+    public function list_infos () {
+        $s_time = date('Ymd',strtotime(date('Y-m-d H:i:s',strtotime('-1 day'))));
+        $key = input('key');
+        $where = " 1";
+        $Nowpage = input('get.page') ? input('get.page'):1;
+        $limits = 10;//
+        if($key&&$key!=="")
+        {
+            $gid = $key;
+        }else{
+            $gid = '';
+        }
+        $start_time = input('start_time') ?? $s_time;
 
+        $where .=" and lg.dataDate=$start_time ";
+        $count = db('log_group_commission','mysql1')->alias('lg')
+            ->join('t_group_user tg','tg.groupId = lg.groupId and tg.userId = lg.userID')
+            ->where('tg.groupId',$gid)
+            ->where("tg.userRole = 10")
+            ->where($where)
+            ->count();//计算总页面
+
+        $allpage = intval(ceil($count / $limits));
+        $lists = db('log_group_commission','mysql1')->alias('lg')
+            ->join('t_group_user tg','tg.groupId = lg.groupId and tg.userId = lg.userID')
+            ->where('tg.groupId',$gid)
+            ->where("tg.userRole = 10")
+            ->where($where)
+            ->field('tg.userId,tg.userName,lg.zjsCount,lg.totalPay,lg.commissionCount,lg.credit')
+            ->order('lg.zjsCount desc')
+            ->select();
+//        if(!is_array($lists)){
+//            $lists = $lists->toArray();
+//            foreach ($lists as $keys=>$v) {
+//                $lists[$keys]['promoterIds'] = get_promoterIds($lists[$keys]['groupId'],$lists[$keys]['userRole'],$lists[$keys]['promoterLevel'],$qz,$lists[$keys]['userGroup'],$lists[$keys]['promoterId1'],$lists[$keys]['promoterId2'],$lists[$keys]['promoterId3'],$lists[$keys]['promoterId4']);
+//            }
+//        }
+        if(input('get.page'))
+        {
+            return json($lists);
+        }
+        $this->assign('start_time', $start_time); //当前页
+        $this->assign('Nowpage', $Nowpage); //当前页
+        $this->assign('allpage', $allpage); //总页数
+        $this->assign('val', $key);
+        return $this->fetch();
+    }
+
+    /**
+     * 单组数据
+     */
+    public function list_one_data() {
+        $key = input('key');
+        $userId = input('userId');
+        $where = " 1";
+        $Nowpage = input('get.page') ? input('get.page'):1;
+        $limits = 10;//
+        if($key&&$key!=="")
+        {
+            $gid = $key;
+            $where .=" and groupId = $gid";
+        }else{
+            $gid = '';
+        }
+        if($userId&&$userId!=="")
+        {
+            $where .=" and userId = $userId";
+        }else{
+            $where .=" and userId = 1";
+        }
+        $count = db('log_group_commission','mysql1')->where($where)->count();//计算总页面
+        $allpage = intval(ceil($count / $limits));
+        $lists = db('log_group_commission','mysql1')->where($where)
+            ->field('dataDate,zjsCount,totalPay,commissionCount,credit')
+            ->order('dataDate desc')
+            ->select();
+        if(input('get.page'))
+        {
+            return json($lists);
+        }
+        $this->assign('Nowpage', $Nowpage); //当前页
+        $this->assign('allpage', $allpage); //总页数
+        $this->assign('userId', $userId); //总页数
+        $this->assign('val', $key);
+        return $this->fetch();
+    }
 }
