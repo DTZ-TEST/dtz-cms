@@ -2372,13 +2372,29 @@ function decrypt_info($info) {
 }
 
 /**
+ * 强制解密
+ */
+function decrypt_infos($info) {
+        $api_key =db('config')->where('name','api_key')->value('value');
+        $api_vi = db('config')->where('name','api_vi')->value('value');
+        $config = [
+            'key' => $api_key, //加密key
+            'iv' => $api_vi, //保证偏移量为16位
+            'method' => 'AES-128-CBC' //加密方式  # AES-256-CBC等
+        ];
+        $aes = new Crypt($config);
+        $res_info = $aes->aesDe($info);
+        $res_info = json_decode($res_info,true);
+    return $res_info;
+}
+/**
  * 加密
  */
 function encrypt_info($info) {
-        //$api_key =db('config')->where('name','api_key')->value('value');
-        //$api_vi = db('config')->where('name','api_vi')->value('value');
-        $api_key = "R3eczBvY1KETw06o";
-        $api_vi = "R3eczBvY1KETw06o";
+        $api_key =db('config')->where('name','api_key')->value('value');
+        $api_vi = db('config')->where('name','api_vi')->value('value');
+//        $api_key = "R3eczBvY1KETw06o";
+//        $api_vi = "R3eczBvY1KETw06o";
         $config = [
             'key' => $api_key, //加密key
             'iv' => $api_vi, //保证偏移量为16位
