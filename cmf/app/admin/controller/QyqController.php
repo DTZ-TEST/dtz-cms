@@ -212,13 +212,8 @@ class QyqController extends AdminBaseController
             ->where($where)
             ->field('tg.userId,tg.userName,lg.zjsCount,lg.totalPay,lg.commissionCount,lg.credit')
             ->order('lg.zjsCount desc')
+            ->page($Nowpage, $limits)
             ->select();
-//        if(!is_array($lists)){
-//            $lists = $lists->toArray();
-//            foreach ($lists as $keys=>$v) {
-//                $lists[$keys]['promoterIds'] = get_promoterIds($lists[$keys]['groupId'],$lists[$keys]['userRole'],$lists[$keys]['promoterLevel'],$qz,$lists[$keys]['userGroup'],$lists[$keys]['promoterId1'],$lists[$keys]['promoterId2'],$lists[$keys]['promoterId3'],$lists[$keys]['promoterId4']);
-//            }
-//        }
         if(input('get.page'))
         {
             return json($lists);
@@ -257,6 +252,7 @@ class QyqController extends AdminBaseController
         $lists = db('log_group_commission','mysql1')->where($where)
             ->field('dataDate,zjsCount,totalPay,commissionCount,credit')
             ->order('dataDate desc')
+            ->page($Nowpage, $limits)
             ->select();
         if(input('get.page'))
         {
