@@ -20,7 +20,7 @@ class ConfigController extends AdminBaseController
     {
         $url = db('config')->where('name','up_url')->value('value');
         $file =  file_get_contents($url);
-        $data_info = decrypt_info($file);
+        $data_info = decrypt_infos($file);
         if(is_array($data_info)){
             $httpList = $data_info['httpList']['ips'];
             $loginList = $data_info['loginList']['ips'];
@@ -38,7 +38,7 @@ class ConfigController extends AdminBaseController
     {
         $url = db('config')->where('name','up_url')->value('value');
         $file =  file_get_contents($url);
-        $data_info = decrypt_info($file);
+        $data_info = decrypt_infos($file);
         if(input('post.')) {
             $parm = input('post.');
             if(is_array($data_info)){
