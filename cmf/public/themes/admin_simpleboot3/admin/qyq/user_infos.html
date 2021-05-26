@@ -40,7 +40,7 @@
                     <h3 class="panel-title">身份</h3>
                 </div>
                 <div class="panel-body">
-                    <label v-if="item.userRole===0" class="label label-danger">群主</label>
+                    <label v-if="item.userRole==0" class="label label-danger">群主</label>
                     <label v-if="item.userRole==1" class="label label-success">管理员</label>
                     <label v-if="item.userRole==10" class="label label-warning">组长</label>
                     <label v-if="item.userRole==20" class="label label-info">拉手</label>
