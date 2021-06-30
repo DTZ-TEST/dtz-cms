@@ -21,6 +21,7 @@ class JournalController extends RestBaseController
     public function add_cards() {
         if(input('post.')){
             $mid = cmf_get_current_admin_id();
+            apilog($mid."点击添加钻石");
             $apiurl = get_api_url()."changeUserCurrency.do";
             $parm = input('post.');
             $inser_parm['type'] = $parm['type'];
@@ -65,9 +66,10 @@ class JournalController extends RestBaseController
                     }
                 } catch (\Exception $e) {
                     // 回滚事务
-                    Db::rollback();
+                    //Db::rollback();
                 }
-
+            }else{
+                apilog($mid."接口异常".$res_info);
             }
         }
     }
@@ -83,6 +85,7 @@ class JournalController extends RestBaseController
     public function kc_cards () {
         if(input('post.')){
             $mid = cmf_get_current_admin_id();
+            apilog($mid."点击扣除钻石");
             $apiurl = get_api_url()."changeUserCurrency.do";
             $t_card   = db('cards_stock')->where('id',1)->value('stock');
             $parm = input('post.');
@@ -98,6 +101,7 @@ class JournalController extends RestBaseController
             $parm['sign'] = checkSign($parm);
             $info = cmf_api_request($apiurl,$parm);
             $res_info = decrypt_info($info);
+//            usleep(5000000);
             if($res_info['code']===0){
                 $cardss = $res_info['retCard'];
                 if($cardss===0){
@@ -138,9 +142,9 @@ class JournalController extends RestBaseController
                         }else{
                         }
                     }
-
                 }
             }else{
+                apilog($mid."接口异常".$res_info);
                 return json($res_info);
             }
         }
@@ -152,6 +156,7 @@ class JournalController extends RestBaseController
     public function qc_cards () {
         if(input('post.')){
             $mid = cmf_get_current_admin_id();
+            apilog($mid."点击清除钻石");
             $apiurl = get_api_url()."changeUserCurrency.do";
             $t_card   = db('cards_stock')->where('id',1)->value('stock');
             $parm = input('post.');
@@ -185,6 +190,7 @@ class JournalController extends RestBaseController
                     }
                 }
             }else{
+                apilog($mid."接口异常".$res_info);
                 return json($res_info);
             }
         }
