@@ -264,4 +264,9 @@ class QyqController extends AdminBaseController
         $this->assign('val', $key);
         return $this->fetch();
     }
+
+    public function ip_config()
+    {
+        return $this->fetch();
+    }
 }

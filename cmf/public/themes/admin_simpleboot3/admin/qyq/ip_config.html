@@ -1,0 +1,78 @@
+<include file="public@header"/>
+</head>
+<body>
+<div class="wrap js-check-wrap" id="configs">
+    <ul class="nav nav-tabs">
+        <li><a href="#A" active data-toggle="tab">托管状态修改</a></li>
+    </ul>
+    <form class="form-horizontal js-ajax-form margin-top-20" role="form" action=""
+          method="post">
+        <fieldset>
+            <div class="tabbable">
+                <div class="tab-content">
+
+                        <div class="form-group">
+                            <button style="margin-left: 10%" type="button" class="btn btn-info" @click="saves_tg(0)" v-if="auto_play_off==-1">
+                                取消托管
+                            </button>
+                            <button style="margin-left: 10%" type="button" class="btn btn-danger" @click="saves_tg(-1)" v-if="auto_play_off==0">
+                                开启托管
+                            </button>
+                        </div>
+                        </div>
+
+                </div>
+        </fieldset>
+    </form>
+</div>
+<script src="__STATIC__/js/vue.js"></script>
+<script src="__STATIC__/js/axios.min.js"></script>
+</body>
+</html>
+<script>
+    var app = new Vue({
+        el: '#configs',
+        data: {
+            auto_play_off: 0,
+        },
+        created () {
+            this.get_auto_play_off();
+        },
+        methods: {
+            get_auto_play_off() {
+                let vm = this;
+                axios
+                    .post('/admin/config/auto_play_off',{})
+                    .then(function (response) {
+                        if(response.data.code==1) {
+                            vm.auto_play_off= response.data.auto_play_off;
+                        }else{
+
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            saves_tg(i) {
+                let vm = this;
+                let auto_play_off = i;
+                axios
+                    .post('/admin/config/auto_play_save',{auto_play_off:auto_play_off})
+                    .then(function (response) {
+                        if(response.data.code==1) {
+                            vm.get_auto_play_off();
+                        }else{
+
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            }
+        },
+        mounted:function(){
+             this.get_auto_play_off();
+        },
+    })
+</script>
