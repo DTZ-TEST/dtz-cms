@@ -1,0 +1,122 @@
+<include file="public@header"/>
+</head>
+<body>
+<div class="wrap js-check-wrap" id="adduser">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#A" data-toggle="tab">添加账号</a></li>
+    </ul>
+    <form class="form-horizontal js-ajax-form margin-top-20" role="form" action=""
+          method="post">
+        <fieldset>
+            <div class="tabbable">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="A">
+                        <div class="form-group">
+                            <label for="input-site-name" class="col-sm-2 control-label"><span
+                                    class="form-required">*</span>账号</label>
+                            <div class="col-md-6 col-sm-10">
+                                <input type="text" class="form-control" id="input-site-name"
+                                       v-model="account">
+                            </div>
+                        </div>
+<!--                        <div class="form-group">-->
+<!--                            <label for="input-site-name" class="col-sm-2 control-label"><span-->
+<!--                                    class="form-required">*</span>昵称</label>-->
+<!--                            <div class="col-md-6 col-sm-10">-->
+<!--                                <input type="text" class="form-control"-->
+<!--                                       v-model="nickname">-->
+<!--                            </div>-->
+<!--                        </div>-->
+                        <div class="form-group">
+                            <label for="input-site-name" class="col-sm-2 control-label"><span
+                                    class="form-required">*</span>密码</label>
+                            <div class="col-md-6 col-sm-10">
+                                <input type="text" class="form-control"
+                                       v-model="password">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-site-name" class="col-sm-2 control-label"><span
+                                    class="form-required">*</span>确认密码</label>
+                            <div class="col-md-6 col-sm-10">
+                                <input type="text" class="form-control"
+                                       v-model="password2">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="button" class="btn btn-primary" @click="add_member()" >
+                                    确认提交
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<script src="__STATIC__/js/vue.js"></script>
+<script src="__STATIC__/js/axios.min.js"></script>
+</body>
+</html>
+<script>
+    var app = new Vue({
+        el: '#adduser',
+        data: {
+            account: "",
+            password: "",
+            passwrod2: "",
+            nickname: '',
+        },
+        created () {
+
+        },
+        methods: {
+            add_member() {
+                let vm = this;
+                let u  = vm.account;
+                if (u.length !==11) {
+                    alert('账号长度请输入11位');
+                    return;
+                }
+                let ps = vm.password;
+                let ps2 = vm.password2;
+                if(!ps){
+                    alert('密码不合法');
+                    return;
+                }
+                var n = Number(ps);
+                if (!isNaN(n))
+                {
+                    alert("是纯数字数字");
+                    return;
+                }
+                if(ps !== ps2) {
+                    alert("两次输入的密码不一样");
+                    return;
+                }
+                // let nickName   = vm.nickname;
+                // if(nickName==u){
+                //     alert("账号不能和昵称相同");
+                //     return;
+                // }
+                axios
+                    .post('/api/qyq/add_member',{u: u, ps:ps})
+                    .then(function (response) {
+                        if(response.data.code==0) {
+                            alert('注册成功');
+                        }else{
+                            alert(response.data.msg);
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            }
+        },
+        mounted:function(){
+            this.get_auto_play_off();
+        },
+    })
+</script>
