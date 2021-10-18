@@ -18,6 +18,8 @@ use think\Loader;
 use cmf\lib\Storage;
 use think\facade\Hook;
 use app\api\command\Crypt;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 // 应用公共文件
 
 /**
@@ -2336,11 +2338,31 @@ function str_to_arr($string)
  * @param params
  * @return
  */
-
 function checkSign($params_info) {
     ksort($params_info);
-    $params_infoss = http_build_query($params_info);
-    return md5("&".$params_infoss."&key=szmUQrkBRv54cSOj");
+    $str = "";
+    foreach ($params_info as $k => $v) {
+        $str .= $k . "=" .$v . "&amp;";
+    }
+    $str = htmlspecialchars_decode($str);
+    $str = "&".$str."key=szmUQrkBRv54cSOj";
+    $strs = md5($str);
+    return $strs;
+}
+
+/**
+ * 签名参数
+ * @param params
+ * @return
+ */
+function checkSign02($params_info) {
+    //ksort($params_info);
+    $str = $params_info['u'] . $params_info['ps'] .$params_info['t']."mwFLeKLzNoL46dDn0vE2";
+    //$str = htmlspecialchars_decode($str);
+    //$str = $str."secret=mwFLeKLzNoL46dDn0vE2";
+    //$str = "123456dfafaw1234561634543258mwFLeKLzNoL46dDn0vE2";
+    $strs = md5($str);
+    return $strs;
 }
 
 /**
@@ -2472,4 +2494,160 @@ function get_promoterIds($groupId,$userRole,$promoterLevel,$qz,$userGroup,$promo
             break;
     }
     return  $promoterIds;
+}
+
+/**
+ * 获取托管状态
+ */
+function auto_play_off(){
+    $info = db('t_resources_configs','mysql1')->where('msgKey','auto_play_off_servers')->value('msgValue');
+    return $info;
+}
+
+/**
+ * 修改托管状态
+ */
+function auto_play_save($i){
+    $auto_play_off = $i;
+    $data['msgValue'] = $auto_play_off;
+    $info = db('t_resources_configs', 'mysql1')->where('msgKey', 'auto_play_off_servers')->update($data);
+    if ($info !== false) {
+        try {
+            $datas['add_time'] = date('Y-m-d H:i:s');
+            if($i==0){
+                $datas['info'] = "域名链接失败6次托管关闭";
+            }else{
+                $datas['info'] = "域名链接恢复托管开启";
+            }
+            $infos = db('cms_timer_log', 'mysql1')->insert($datas);
+            return  '修改成功' ;
+            return $res;
+        } catch (\Throwable $e) {
+            return $e;
+        }
+    }
+
+}
+
+function timer_log($cont) {
+    try {
+        $date['info'] = $cont;
+        $date['add_time'] = date('Y-m-d H:i:s');
+        $res = db('timer_log')->insert($date);
+        return $res;
+    } catch (\Throwable $e) {
+        return $e;
+    }
+}
+
+
+
+function xtexport($data_array)
+{
+    $name = '亲友圈成员数据' . date("Y-m-d", time());
+    $spreadsheet = new Spreadsheet();
+    foreach ($data_array as $key => $data) {
+        opSheet($spreadsheet,$key,$data);
+    }
+    header('Content-Type: application/vnd.ms-excel');
+    header('Content-Disposition: attachment;filename="' . $name . '.xlsx"');
+    header('Cache-Control: max-age=0');
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    //删除清空：
+    $spreadsheet->disconnectWorksheets();
+    unset($spreadsheet);
+    exit;
+}
+
+function opSheet($spreadsheet,$n, $data)
+{
+    $spreadsheet->createSheet();//创建sheet
+    $objActSheet = $spreadsheet->setActiveSheetIndex($n);//设置当前的活动sheet
+    $keys = ['回放码', '房间号', '对手id', '对手昵称', '赢分'];//这是你的数据键名
+    $count = 5;//计算你所占的列数
+    $keys1 = ['回放码', '房间号', '对手id', '对手昵称', '输分'];//这是你的数据键名
+    $count1 = 5;//计算你所占的列数
+    $title = "userId：".$data['userId'];
+    $infoNum = ceil(count($data['cont_list']) / 2);//求k-v值的所占行数
+    $infoStart = $infoNum + 2 ;//下面的详细信息的开始行数
+    $cellName    = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ', 'AR', 'AS', 'AT', 'AU', 'AV', 'AW', 'AX', 'AY', 'AZ');
+    $sheet = $spreadsheet->getActiveSheet($n)->setTitle($title);//设置sheet的名称
+    $spreadsheet->getActiveSheet($n)->mergeCells('A1:' . $cellName[$count - 1] . '1'); //合并单元格
+    $spreadsheet->getActiveSheet($n)->getStyle('A1')->getFont()->setSize(20); //设置title的字体大小
+    $spreadsheet->getActiveSheet($n)->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle('A')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle('B')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle('C')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle('D')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle('E')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle('F')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle('G')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle('H')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle('I')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle('J')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle('K')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle('L')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle('M')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle("$infoStart")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); //居中
+    $spreadsheet->getActiveSheet($n)->getStyle("$infoStart")->getFont()->setBold(true); //标题栏加粗
+    $objActSheet->setCellValue('A1', $title."；昵称：".$data['username']); //设置每个sheet中的名称title
+
+
+    /**
+     * 图中最下面的数据信息循环
+     */
+    if(!empty($data['list'])){
+        array_unshift($data['list'],$keys);
+        foreach ($data['list'] as $key => $item)
+        {
+            $item = array_values($item);
+            //循环设置单元格：
+            //$key+$infoStart,因为第一行是表头，所以写到表格时   从第数据行开始写
+            for ($i = 65; $i < $count + 65; $i++)
+            {
+                //数字转字母从65开始：
+                //$sheet->setCellValue(strtoupper(chr($i)) . ($key + "$infoStart"), $item[[$keys][$i - 65]]);
+                $sheet->setCellValue(strtoupper(chr($i)) . ($key+"$infoStart"), $item[$i - 65]);
+                $spreadsheet->getActiveSheet($n)->getColumnDimension(strtoupper(chr($i)))->setWidth(20); //固定列宽
+            }
+        }
+    }
+    if(!empty($data['list1'])){
+        array_unshift($data['list1'],$keys1);
+        foreach ($data['list1'] as $keyww => $itemww)
+        {
+            //循环设置单元格：
+            $itemww = array_values($itemww);
+            //$key+$infoStart,因为第一行是表头，所以写到表格时   从第数据行开始写
+            for ($i = 72; $i < $count1 + 72; $i++)
+            {
+                //数字转字母从65开始：
+                //$sheet->setCellValue(strtoupper(chr($i)) . ($key + "$infoStart"), $item[[$key][$i - 65]]);
+                $sheet->setCellValue(strtoupper(chr($i)) . ($keyww+"$infoStart"), $itemww[$i - 72]);
+                $spreadsheet->getActiveSheet($n)->getColumnDimension(strtoupper(chr($i)))->setWidth(20); //固定列宽
+            }
+        }
+    }
+    /**
+     * 处理图中的中间区 团长名称之类的
+     */
+    $rowNumber = 1;
+    $infoIndex = 0;
+    foreach ($data['cont_list'] as $key => $value) {
+        if ($infoIndex % 2 == 0) {
+            $rowNumber++;
+            $infoCellName1 = 'A' . $rowNumber;
+            $infoCellMegreRange = 'B' . $rowNumber . ':C' . $rowNumber;
+            $infoCellName2 = 'B' . $rowNumber;
+        } else {
+            $infoCellName1 = 'D' . $rowNumber;
+            $infoCellMegreRange = 'E' . $rowNumber . ':F' . $rowNumber;
+            $infoCellName2 = 'E' . $rowNumber;
+        }
+        $spreadsheet->setActiveSheetIndex($n)->setCellValue($infoCellName1, $key);
+        $spreadsheet->getActiveSheet($n)->mergeCells($infoCellMegreRange);
+        $spreadsheet->setActiveSheetIndex($n)->setCellValue($infoCellName2, $value);
+        $infoIndex++;
+    }
 }
