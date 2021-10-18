@@ -20,8 +20,6 @@ class HomeBaseController extends BaseController
     protected function initialize()
     {
         // 监听home_init
-        $this->redirect(url("/admin/index/"));
-//        $this->error("您尚未登录", cmf_url("/admin/index/"));
         hook('home_init');
         parent::initialize();
     }
@@ -124,7 +122,7 @@ hello;
      * @param string $template 模板文件规则
      * @return string
      */
-    private function parseTemplate($template)
+    protected function parseTemplate($template)
     {
         $siteInfo = cmf_get_site_info();
         $this->view->assign('site_info', $siteInfo);
