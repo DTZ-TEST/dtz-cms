@@ -1,4 +1,4 @@
-<?php /*a:2:{s:55:"themes/admin_simpleboot3/admin\setting\clear_cache.html";i:1609556034;s:78:"D:\phpstudy_pro\WWW\dtz\cmf\public/themes/admin_simpleboot3/public\header.html";i:1614844967;}*/ ?>
+<?php /*a:2:{s:55:"themes/admin_simpleboot3/admin\setting\clear_cache.html";i:1625476073;s:86:"E:\phpstudy_pro\WWW\a02\dtz-cms\cmf\public/themes/admin_simpleboot3/public\header.html";i:1625476073;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>

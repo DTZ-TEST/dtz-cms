@@ -71,11 +71,11 @@ return [
 //            'username'          => env('database.username', 'root'),
 //            // 密码
 //            'password'          => env('database.password', '123456'),
-            'hostname'          => env('database.hostname', '192.168.1.112'),
+            'hostname'          => env('database.hostname', '8.131.239.9'),
             // 数据库名
             'database'          => env('database.database', 'dtz_login'),
             // 用户名
-            'username'          => env('database.username', 'xiaojie'),
+            'username'          => env('database.username', 'xj'),
             // 密码
             'password'          => env('database.password', 'xiaojie'),
             // 端口
