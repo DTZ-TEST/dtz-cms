@@ -76,8 +76,8 @@
             add_member() {
                 let vm = this;
                 let u  = vm.account;
-                if (u.length !==11) {
-                    alert('账号长度请输入11位');
+                if (u.length >11 || u.length<6) {
+                    alert('账号长度请输入6-11位');
                     return;
                 }
                 let ps = vm.password;
