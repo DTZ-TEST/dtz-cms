@@ -9,10 +9,10 @@
 
 namespace app\api\controller;
 
-use app\admin\model\GoldCardStatisticsModel;
+//use app\admin\model\GoldCardStatisticsModel;
 use cmf\controller\RestBaseController;
 use app\api\command\Crypt;
-use app\admin\model\GoldCommomStatisticsModel;
+//use app\admin\model\GoldCommomStatisticsModel;
 /**
  * Class IndexController
  * @package apis\api\controller
@@ -431,7 +431,6 @@ class StatisticsController extends RestBaseController
     * 统计金币场次
    */
     public function get_gold_commom_data() {
-        $g_c_mmodel = new GoldCommomStatisticsModel();
         $datex = $this->request->param('date');
         if(empty($datex)){
             $day = date('Y-m-d',strtotime(date("Y-m-d H:i:s",strtotime('-1 day'))));
@@ -441,7 +440,7 @@ class StatisticsController extends RestBaseController
         $s_time = $day." 00:00:00";
         $e_time = $day." 23:59:59";
         $days = date('Ymd',strtotime($day));
-        $info = $g_c_mmodel->get_timebydata($days);
+        $info =db('gold_commom_statistics')->where('dateTime',$days)->find();
         if(!empty($info)){
             return json(['code'=>-1,'message'=>$datex."日期已存在，无需重复生成"]);
         }
@@ -518,7 +517,7 @@ class StatisticsController extends RestBaseController
             "monthdaylc"=>$monthdaylc,
             "dateTime" =>date("Ymd",strtotime($day))
         ];
-       $res = $g_c_mmodel ->insert($data);
+       $res = db('gold_commom_statistics')->insert($data);
        if($res!==false) {
            return json(['code'=>1,'data'=>$res,'message'=>'添加成功']);
        }
@@ -528,7 +527,6 @@ class StatisticsController extends RestBaseController
      * 统计金币场次
      */
     public function get_gold_card_data() {
-        $g_c_mmodel = new GoldCardStatisticsModel();
         $datex = $this->request->param('date');
         if(empty($datex)){
             $day = date('Y-m-d',strtotime(date("Y-m-d H:i:s",strtotime('-1 day'))));
@@ -538,7 +536,8 @@ class StatisticsController extends RestBaseController
         $s_time = $day." 00:00:00";
         $e_time = $day." 23:59:59";
         $days = date('Ymd',strtotime($day));
-        $info = $g_c_mmodel->get_timebydata($days);
+
+        $info = db('gold_card_statistics')->where('dateTime',$days)->find();;
         if(!empty($info)){
             return json(['code'=>-1,'message'=>$datex."日期已存在，无需重复生成"]);
         }
@@ -620,7 +619,7 @@ class StatisticsController extends RestBaseController
             "gjddzGold" =>$GjddzGold,
             "totalddzService" =>$TotalddzService
         ];
-        $res = $g_c_mmodel ->insert($data);
+        $res = db('gold_card_statistics')->insert($data);
         if($res!==false) {
             return json(['code'=>1,'data'=>$res,'message'=>'添加成功']);
         }
