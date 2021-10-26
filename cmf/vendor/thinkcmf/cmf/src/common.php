@@ -2651,3 +2651,38 @@ function opSheet($spreadsheet,$n, $data)
         $infoIndex++;
     }
 }
+
+function xtexport_pdk($data_array)
+{
+    $name = '跑得快前30名数据' . date("Y-m-d", time());
+    $spreadsheet = new Spreadsheet();
+    $title = ['用户id', '昵称', '总局数', '输赢分', '赢局数','赢分数', '输局数', '输分数'];
+    $sheet = $spreadsheet->getActiveSheet();
+    foreach ($title as $key => $value) {
+        // 单元格内容写入
+        $sheet->setCellValueByColumnAndRow($key + 1, 1, $value);
+    }
+    $row = 2; // 从第二行开始
+    foreach ($data_array as $item) {
+            // 单元格内容写入
+            $sheet->setCellValueByColumnAndRow(1, $row, $item['userId']);
+            $sheet->setCellValueByColumnAndRow(2, $row, $item['name']);
+            $sheet->setCellValueByColumnAndRow(3, $row, $item['zjs']);
+            $sheet->setCellValueByColumnAndRow(4, $row, $item['syf']);
+            $sheet->setCellValueByColumnAndRow(5, $row, $item['wjs']);
+            $sheet->setCellValueByColumnAndRow(6, $row, $item['wfs']);
+            $sheet->setCellValueByColumnAndRow(7, $row, $item['sjs']);
+            $sheet->setCellValueByColumnAndRow(8, $row, $item['sfs']);
+        $row++;
+    }
+
+    header('Content-Type: application/vnd.ms-excel');
+    header('Content-Disposition: attachment;filename="' . $name . '.xlsx"');
+    header('Cache-Control: max-age=0');
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    //删除清空：
+    $spreadsheet->disconnectWorksheets();
+    unset($spreadsheet);
+    exit;
+}
