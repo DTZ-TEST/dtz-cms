@@ -1,0 +1,196 @@
+<include file="public@headers" />
+<style>
+    .ibox-content {
+        background-color: #fff;
+        color: inherit;
+        padding: 15px 20px 200px;
+        border-color: #e7eaec;
+        -webkit-border-image: none;
+        -o-border-image: none;
+        border-image: none;
+        border-style: solid solid none;
+        border-width: 1px 0;
+    }
+</style>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight" id="qyqDetail">
+    <!-- Panel Other -->
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5>亲友圈资料</h5>
+        </div>
+        <div class="ibox-content">
+            <!--搜索框开始-->
+            <div class="row">
+                <div class="col-sm-12">
+                    <form name="admin_list_sea" class="form-search" method="post">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                            <span class="input-group-btn" id="dateShowBtn" >
+                                    <input type="text" name="start_time" id="dateSelectorTwo" lay-verify="date" placeholder="开始时间" autocomplete="off"
+                                           class="form-control jeinput" v-model="start_time">
+                            </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                            <span class="input-group-btn" id="dateShowBtn1" >
+                                    <input type="text" name="start_time" id="dateSelectorTwo1" lay-verify="date" placeholder="结束时间" autocomplete="off"
+                                           class="form-control jeinput" v-model="end_time">
+                            </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <input type="text" v-model="groupId" class="form-control" placeholder="输入需查询的亲友圈ID" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-primary" @click="seach()"><i class="fa fa-search"></i> 搜索</button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-success" @click="execl_info()">导出数据</button>
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!--搜索框结束-->
+            <div class="hr-line-dashed"></div>
+            <div class="example-wrap">
+                <div class="example">
+                    <div class="row" style="height: 100px;padding: 20px;margin: 20px;">
+                        <table class="table table-hover table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>玩家ID</th>
+                                    <th>昵称</th>
+                                    <th>总局数</th>
+                                    <th>总输赢分</th>
+                                    <th>赢局数</th>
+                                    <th>赢分数</th>
+                                    <th>输局数</th>
+                                    <th>输分</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in userList">
+                                    <td>{{item.userId}}</td>
+                                    <td>{{item.name}}</td>
+                                    <td>{{item.zjs}}</td>
+                                    <td>{{item.zfs}}</td>
+                                    <td>{{item.wjs}}</td>
+                                    <td>{{item.wfs}}</td>
+                                    <td>{{item.sjs}}</td>
+                                    <td>{{item.sfs}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+            </div>
+        </div>
+        <!-- End Example Pagination -->
+    </div>
+</div>
+</div>
+<!-- End Panel Other -->
+</div>
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#qyqDetail',
+        data: {
+            groupId: '',
+            dates: '',
+            start_time: '',
+            end_time: '',
+            contList:
+                {
+                    "lose_credit": "",
+                    "win_credit": "",
+                    "cont_zjs": "",
+                    "lose_js": "",
+                    "win_js": ""
+                },
+            listWin: [],
+            listShu: [],
+            userId: '',
+            userList: {}
+        },
+        created () {
+           this.start_time = "";
+           this.end_time = "";
+           this.addDate();
+        },
+        methods: {
+            addDate(){
+                const nowDate = new Date();
+                const date = {
+                    year: nowDate.getFullYear(),
+                    month: nowDate.getMonth() + 1,
+                    date: nowDate.getDate(),
+                }
+                const newmonth = date.month>=10?date.month:'0'+date.month
+                const day = date.date>=10?date.date:'0'+date.date
+                this.dates = date.year + '-' + newmonth + '-' + day
+
+            },
+            seach () {
+                let flag = false;
+                let vm = this;
+                let groupId = vm.groupId;
+                let start_time = $('#dateSelectorTwo').val();
+                let end_time = $('#dateSelectorTwo1').val();
+                if(!groupId){
+                    layer.msg("请填写亲友圈id!");
+                    return;
+                }
+                if(flag==false){
+                    flag= true;
+                    axios
+                        .post('/api/qyq/getqid_by_pdkdata',{groupId: groupId,start_time:start_time,end_time:end_time})
+                        .then(function (response) {
+                            if(response.data.code==1) {
+                                vm.userList = response.data.userList;
+                                flag = false;
+                            }else{
+                                layer.msg(response.data.message);
+                            }
+                        })
+                        .catch(function (error) { // 请求失败处理
+                            console.log(error);
+                        });
+                }else{
+                    return;
+                }
+            },
+            execl_info() {
+                let vm = this;
+                let groupId = vm.groupId;
+                let start_time = $('#dateSelectorTwo').val();
+                let end_time = $('#dateSelectorTwo1').val();
+                if(!groupId || !start_time || !end_time){
+                    alert('请输入参数');
+                    return ;
+                }
+                location.href = "./execl_info_pdk.html?start_time="+start_time+"&end_time="+end_time+"&groupId="+groupId;
+            }
+        },
+        mounted:function(){
+        }
+    })
+    jeDate("#dateSelectorTwo",{
+        theme:{bgcolor:"#1ab394",pnColor:"#00CCFF"},
+        format: "YYYY-MM-DD"
+    });
+    jeDate("#dateSelectorTwo1",{
+        theme:{bgcolor:"#1ab394",pnColor:"#00CCFF"},
+        format: "YYYY-MM-DD"
+    });
+</script>
+</body>
+</html>
