@@ -11,6 +11,7 @@ namespace app\api\controller;
 
 use cmf\controller\RestBaseController;
 use app\api\command\Crypt;
+use OpenApi\Tests\Annotations\ValidateRelationsTest;
 use think\facade\Db;
 /**
  * Class IndexController
@@ -428,4 +429,34 @@ SELECT tt.tableNo,tt.tableId,tt.logId FROM t_table_record tt,t_group_table gt WH
             return 0;
         }
     }
+
+    /**
+     * 根据亲友圈id 时间段查询排名前30玩家
+     */
+    public function getqid_by_pdkdata () {
+        $groupId = input('post.groupId');
+        $start_time    = input('post.start_time');
+        $end_time    = input('post.end_time');
+        $start_time = $start_time. " 00:00:00";
+        $endtime = $end_time. " 23:59:59";
+
+        $where = " a.groupId = $groupId and a.createdTime >='$start_time' and a.createdTime<= '$endtime'";
+        $wheres = " 1 and (t_group_table.playType = 11 or t_group_table.playType = 15 or t_group_table.playType = 16)";
+        $res_info = db('t_table_user', 'mysql1')->alias('a')
+                  ->join('t_group_table','a.tableNo = t_group_table.keyId')
+                  ->join('user_inf','a.userId = user_inf.userId')
+                  ->where($wheres)
+                  ->where($where)
+                  ->field('sum(a.winLoseCredit) as syf, count(a.userId) as zjs, count(if(winLoseCredit>=0,true,null)) as wjs,
+                  count(if(winLoseCredit<0,true,null)) as sjs,sum(if(winLoseCredit>=0,a.winLoseCredit,0)) as wfs,
+                  sum(if(winLoseCredit<0,a.winLoseCredit,0)) as sfs, sum(a.winLoseCredit) as zfs,
+                  a.userId , t_group_table.playType,t_group_table.keyId, t_group_table.tableName,user_inf.name')
+                  ->group('a.userId')
+                  ->order("syf desc")
+                  ->limit(30)
+                  ->select();
+        return json(['code'=>1,'userList'=>$res_info]);
+
+    }
+
 }

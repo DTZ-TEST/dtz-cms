@@ -161,6 +161,11 @@ class QyqController extends AdminBaseController
         }
     }
 
+    public function ip_config()
+    {
+        return $this->fetch();
+    }
+
     /**
      * 修改玩家密码
      */
@@ -406,5 +411,36 @@ SELECT tt.tableNo,tt.tableId,tt.logId FROM t_table_record tt,t_group_table gt WH
             "总输赢分"    => intval($cont_lose) + intval($cont_win)
         ];
         return ['username'=>$username,'userId'=>$userId,'cont_list'=>$cont_list,'list'=>$list,'list1'=>$list1];
+    }
+
+    public function get_qyq_pdkdata() {
+        return $this->fetch();
+    }
+
+    public function execl_info_pdk()
+    {
+        $groupId = input('get.groupId');
+        $start_time = input('get.start_time');
+        $end_time = input('get.end_time');
+        $start_time = $start_time . " 00:00:00";
+        $endtime = $end_time . " 23:59:59";
+
+        $where = " a.groupId = $groupId and a.createdTime >='$start_time' and a.createdTime<= '$endtime'";
+        $wheres = " 1 and (t_group_table.playType = 11 or t_group_table.playType = 15 or t_group_table.playType = 16)";
+        $res_info = db('t_table_user', 'mysql1')->alias('a')
+            ->join('t_group_table', 'a.tableNo = t_group_table.keyId')
+            ->join('user_inf', 'a.userId = user_inf.userId')
+            ->where($wheres)
+            ->where($where)
+            ->field('sum(a.winLoseCredit) as syf, count(a.userId) as zjs, count(if(winLoseCredit>=0,a.userId,0)) as wjs,
+                  count(if(winLoseCredit<0,a.userId,0)) as sjs,sum(if(winLoseCredit>=0,a.winLoseCredit,0)) as wfs,
+                  sum(if(winLoseCredit<0,a.winLoseCredit,0)) as sfs, sum(a.winLoseCredit) as zfs,
+                  a.userId , t_group_table.playType,t_group_table.keyId, t_group_table.tableName,user_inf.name')
+            ->group('a.userId')
+            ->order("syf desc")
+            ->limit(30)
+            ->select();
+        xtexport_pdk($res_info);
+        exit;
     }
 }
