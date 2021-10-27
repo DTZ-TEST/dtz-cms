@@ -432,8 +432,8 @@ SELECT tt.tableNo,tt.tableId,tt.logId FROM t_table_record tt,t_group_table gt WH
             ->join('user_inf', 'a.userId = user_inf.userId')
             ->where($wheres)
             ->where($where)
-            ->field('sum(a.winLoseCredit) as syf, count(a.userId) as zjs, count(if(winLoseCredit>=0,a.userId,0)) as wjs,
-                  count(if(winLoseCredit<0,a.userId,0)) as sjs,sum(if(winLoseCredit>=0,a.winLoseCredit,0)) as wfs,
+            ->field('sum(a.winLoseCredit) as syf, count(a.userId) as zjs, count(if(winLoseCredit>=0,true,null)) as wjs,
+                  count(if(winLoseCredit<0,true,null)) as sjs,sum(if(winLoseCredit>=0,a.winLoseCredit,0)) as wfs,
                   sum(if(winLoseCredit<0,a.winLoseCredit,0)) as sfs, sum(a.winLoseCredit) as zfs,
                   a.userId , t_group_table.playType,t_group_table.keyId, t_group_table.tableName,user_inf.name')
             ->group('a.userId')
