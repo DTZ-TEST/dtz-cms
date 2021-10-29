@@ -375,11 +375,11 @@ class QyqController extends AdminBaseController
         $cont_info = db('t_table_user','mysql1')->where($where)->field('count(tableNo) as c ,sum(winLoseCredit) as b')->select();
         $cont_info1 = db('t_table_user','mysql1')->where($where1)->field('count(tableNo) as c ,sum(winLoseCredit) as b')->select();
 
-        $sql = "SELECT ss.logId,ss.tableId,tu.userId,gu.`name`,tu2.winLoseCredit FROM t_table_user tu,(
+        $sql = "SELECT ss.playType,ss.tableId,tu.userId,gu.`name`,tu2.winLoseCredit FROM t_table_user tu,(
         SELECT tt.tableNo,tt.tableId,tt.logId FROM t_table_record tt,t_group_table gt WHERE tt.tableNo in( SELECT tableNo FROM t_table_user WHERE groupId='$groupId' AND userId=$userId AND createdTime>='$begtime'  AND createdTime<='$endtime' AND winLoseCredit>=0) AND tt.tableNo=gt.keyId
         ) ss, t_table_user tu2,user_inf gu WHERE tu.tableNo=ss.tableNo AND tu2.tableNo=ss.tableNo AND gu.userId=tu.userId  AND tu.userId!='$userId' AND tu2.userId='$userId'";
 
-        $sql1 = "SELECT ss.logId,ss.tableId,tu.userId,gu.`name`,tu2.winLoseCredit FROM t_table_user tu,(
+        $sql1 = "SELECT ss.playType, ss.logId,ss.tableId,tu.userId,gu.`name`,tu2.winLoseCredit FROM t_table_user tu,(
 SELECT tt.tableNo,tt.tableId,tt.logId FROM t_table_record tt,t_group_table gt WHERE tt.tableNo in( SELECT tableNo FROM t_table_user WHERE groupId='$groupId' AND userId=$userId AND createdTime>='$begtime'  AND createdTime<='$endtime' AND winLoseCredit<0) AND tt.tableNo=gt.keyId
 ) ss, t_table_user tu2,user_inf gu WHERE tu.tableNo=ss.tableNo AND tu2.tableNo=ss.tableNo AND gu.userId=tu.userId  AND tu.userId!='$userId' AND tu2.userId='$userId';
 ";
