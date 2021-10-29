@@ -285,7 +285,7 @@ class QyqController extends AdminBaseController
         $dates = date('Ymd',strtotime($dates));
         if(!empty($groupId)){
             $userList = db('t_group_debug','mysql1')->where('groupId',$groupId)->value("whiteNameList");
-            $sql = "SELECT lg.groupId,lg.userId,ui.`name`,lg.selfWinCredit,lg.selfZjsCount,lg.selfDyjCount FROM log_group_commission lg,user_inf ui WHERE lg.groupId='$groupId' AND lg.dataDate='$dates' AND FIND_IN_SET(lg.userId,'$userList') AND lg.userId=ui.userId ORDER BY lg.selfWinCredit DESC";
+            $sql = "SELECT lg.groupId,lg.userId,ui.`name`,lg.selfWinCredit,lg.selfZjsCount,lg.selfDyjCount FROM log_group_commission lg,user_inf ui WHERE lg.groupId='$groupId' AND lg.dataDate='$dates' AND FIND_IN_SET(lg.userId,'$userList') AND lg.userId=ui.userId AND lg.selfZjsCount > 0 ORDER BY lg.selfWinCredit DESC";
             if(empty($userList)){
                 return json(['code'=>-1,'message'=>"暂无数据"]);
             }
