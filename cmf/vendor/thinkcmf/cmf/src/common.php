@@ -2564,10 +2564,10 @@ function opSheet($spreadsheet,$n, $data)
 {
     $spreadsheet->createSheet();//创建sheet
     $objActSheet = $spreadsheet->setActiveSheetIndex($n);//设置当前的活动sheet
-    $keys = ['回放码', '房间号', '对手id', '对手昵称', '赢分'];//这是你的数据键名
-    $count = 5;//计算你所占的列数
-    $keys1 = ['回放码', '房间号', '对手id', '对手昵称', '输分'];//这是你的数据键名
-    $count1 = 5;//计算你所占的列数
+    $keys = ['玩法', '回放码', '房间号', '对手id', '对手昵称', '赢分'];//这是你的数据键名
+    $count = 6;//计算你所占的列数
+    $keys1 = ['玩法', '回放码', '房间号', '对手id', '对手昵称', '输分'];//这是你的数据键名
+    $count1 = 6;//计算你所占的列数
     $title = "userId：".$data['userId'];
     $infoNum = ceil(count($data['cont_list']) / 2);//求k-v值的所占行数
     $infoStart = $infoNum + 2 ;//下面的详细信息的开始行数
@@ -2650,6 +2650,7 @@ function opSheet($spreadsheet,$n, $data)
         $spreadsheet->setActiveSheetIndex($n)->setCellValue($infoCellName2, $value);
         $infoIndex++;
     }
+
 }
 
 function xtexport_pdk($data_array)
@@ -2686,3 +2687,5 @@ function xtexport_pdk($data_array)
     unset($spreadsheet);
     exit;
 }
+
+
